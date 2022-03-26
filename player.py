@@ -1,20 +1,17 @@
 import pygame
+from settings import Settings
 
 
-class Player:
+class Player(pygame.sprite.Sprite):
 
-    def __init__(self, ai_game):
-        self.screen = ai_game.screen
-        self.settings = ai_game.settings
-        self.screen_rect = ai_game.screen.get_rect()
+    def __init__(self, position, groups, obstacle_sprites):
+        super().__init__(groups)
+        self.image = pygame.image.load('resources/character.png').convert_alpha()
+        self.rect = self.image.get_rect(topleft=position)
+        self.obstacle_sprites = obstacle_sprites
+        self.settings = Settings()
 
-        self.image = pygame.image.load('resources/knight.png')
-        self.rect = self.image.get_rect()
-
-        self.rect.midbottom = self.screen_rect.midbottom
-
-        self.x = float(self.rect.x)
-        self.y = float(self.rect.y)
+        self.direction = pygame.math.Vector2()
 
         self.moving_right = False
         self.moving_left = False
@@ -22,37 +19,56 @@ class Player:
         self.moving_up = False
 
     def move(self):
-        if self.moving_right and self.rect.right < self.screen_rect.right:
-            self.x += self.settings.player_speed
-        if self.moving_left and self.rect.left > 0:
-            self.x -= self.settings.player_speed
-        if self.moving_up and self.rect.top > 0:
-            self.y -= self.settings.player_speed
-        if self.moving_down and self.rect.bottom < self.screen_rect.bottom:
-            self.y += self.settings.player_speed
-        self.rect.x = self.x
-        self.rect.y = self.y
+        self.direction.x, self.direction.y = 0, 0
+        if self.moving_right:
+            self.direction.x = 1
+        if self.moving_left:
+            self.direction.x = -1
+        if self.moving_up:
+            self.direction.y = -1
+        if self.moving_down:
+            self.direction.y = 1
 
-    def handle_event(self, event):
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_RIGHT:
-                self.moving_right = True
-            elif event.key == pygame.K_LEFT:
-                self.moving_left = True
-            elif event.key == pygame.K_UP:
-                self.moving_up = True
-            elif event.key == pygame.K_DOWN:
-                self.moving_down = True
+        if self.direction.magnitude() != 0:
+            self.direction = self.direction.normalize()
 
-        if event.type == pygame.KEYUP:
-            if event.key == pygame.K_RIGHT:
-                self.moving_right = False
-            elif event.key == pygame.K_LEFT:
-                self.moving_left = False
-            elif event.key == pygame.K_UP:
-                self.moving_up = False
-            elif event.key == pygame.K_DOWN:
-                self.moving_down = False
+        self.rect.x += self.direction.x * self.settings.player_speed
+        self.collision('x')
+        self.rect.y += self.direction.y * self.settings.player_speed
+        self.collision('y')
 
-    def blitme(self):
-        self.screen.blit(self.image, self.rect)
+    def collision(self, direction):
+        if direction == 'x':
+            for sprite in self.obstacle_sprites:
+                if sprite.rect.colliderect(self.rect):
+                    if self.direction.x > 0:
+                        self.rect.right = sprite.rect.left
+                    if self.direction.x < 0:
+                        self.rect.left = sprite.rect.right
+        if direction == 'y':
+            for sprite in self.obstacle_sprites:
+                if sprite.rect.colliderect(self.rect):
+                    if self.direction.y < 0:
+                        self.rect.top = sprite.rect.bottom
+                    if self.direction.y > 0:
+                        self.rect.bottom = sprite.rect.top
+
+    def handle_keys(self):
+        event = pygame.key.get_pressed()
+        self.moving_up = False
+        self.moving_down = False
+        self.moving_right = False
+        self.moving_left = False
+
+        if event[pygame.K_UP]:
+            self.moving_up = True
+        if event[pygame.K_DOWN]:
+            self.moving_down = True
+        if event[pygame.K_LEFT]:
+            self.moving_left = True
+        if event[pygame.K_RIGHT]:
+            self.moving_right = True
+
+    def update(self):
+        self.handle_keys()
+        self.move()
