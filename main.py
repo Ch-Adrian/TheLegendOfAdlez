@@ -15,7 +15,6 @@ class TheLegendOfAdlez:
         self.clock = pygame.time.Clock()
         self.map = Map()
 
-
     def run_game(self):
         while True:
             self._check_events()
@@ -38,3 +37,4 @@ class TheLegendOfAdlez:
 if __name__ == '__main__':
     tloa = TheLegendOfAdlez()
     tloa.run_game()
+
