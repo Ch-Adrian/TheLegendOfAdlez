@@ -10,6 +10,8 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(topleft=position)
         self.obstacle_sprites = obstacle_sprites
         self.settings = Settings()
+        self.overlapx = 16
+        self.overlapy = 16
 
         self.direction = pygame.math.Vector2()
 
@@ -38,20 +40,26 @@ class Player(pygame.sprite.Sprite):
         self.collision('y')
 
     def collision(self, direction):
+        self.rect.inflate_ip(-self.overlapx, -self.overlapy)
         if direction == 'x':
             for sprite in self.obstacle_sprites:
+                sprite.rect.inflate_ip(-self.overlapx, -self.overlapy)
                 if sprite.rect.colliderect(self.rect):
                     if self.direction.x > 0:
                         self.rect.right = sprite.rect.left
                     if self.direction.x < 0:
                         self.rect.left = sprite.rect.right
+                sprite.rect.inflate_ip(self.overlapx, self.overlapy)
         if direction == 'y':
             for sprite in self.obstacle_sprites:
+                sprite.rect.inflate_ip(-self.overlapx, -self.overlapy)
                 if sprite.rect.colliderect(self.rect):
                     if self.direction.y < 0:
                         self.rect.top = sprite.rect.bottom
                     if self.direction.y > 0:
                         self.rect.bottom = sprite.rect.top
+                sprite.rect.inflate_ip(self.overlapx, self.overlapy)
+        self.rect.inflate_ip(self.overlapx, self.overlapy)
 
     def handle_keys(self):
         event = pygame.key.get_pressed()
