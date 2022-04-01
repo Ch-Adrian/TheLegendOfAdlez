@@ -1,4 +1,5 @@
-import pygame, sys
+import pygame
+import sys
 from settings import Settings
 from map import Map
 
@@ -18,13 +19,8 @@ class TheLegendOfAdlez:
     def run_game(self):
         while True:
             self._check_events()
-            self.do_some_stuff()
             self._update_screen()
             self.clock.tick(self.settings.frames_per_second)
-
-    def do_some_stuff(self):
-        self.screen.fill(self.settings.bg_color)
-        self.map.draw()
 
     def _check_events(self):
         for event in pygame.event.get():
@@ -32,6 +28,8 @@ class TheLegendOfAdlez:
                 sys.exit()
 
     def _update_screen(self):
+        self.screen.fill(self.settings.bg_color)
+        self.map.draw()
         pygame.display.update()
 
 if __name__ == '__main__':

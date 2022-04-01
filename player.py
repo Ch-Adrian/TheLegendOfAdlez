@@ -60,13 +60,13 @@ class Player(pygame.sprite.Sprite):
         self.moving_right = False
         self.moving_left = False
 
-        if event[pygame.K_UP]:
+        if event[pygame.K_UP] or event[pygame.K_w]:
             self.moving_up = True
-        if event[pygame.K_DOWN]:
+        if event[pygame.K_DOWN] or event[pygame.K_s]:
             self.moving_down = True
-        if event[pygame.K_LEFT]:
+        if event[pygame.K_LEFT] or event[pygame.K_a]:
             self.moving_left = True
-        if event[pygame.K_RIGHT]:
+        if event[pygame.K_RIGHT] or event[pygame.K_d]:
             self.moving_right = True
 
     def update(self):
