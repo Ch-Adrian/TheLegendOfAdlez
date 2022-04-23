@@ -1,4 +1,6 @@
 import pygame
+
+from Spritesheet import Spritesheet
 from settings import Settings
 
 
@@ -6,12 +8,13 @@ class Player(pygame.sprite.Sprite):
 
     def __init__(self, position, groups, obstacle_sprites):
         super().__init__(groups)
-        self.image = pygame.image.load('resources/character.png').convert_alpha()
+        self.sheet = Spritesheet('resources/map1/assets/player.png')
+        self.image = self.sheet.get_sprite(10,18,32,32);
         self.rect = self.image.get_rect(topleft=position)
         self.obstacle_sprites = obstacle_sprites
         self.settings = Settings()
-        self.overlapx = 16
-        self.overlapy = 16
+        self.overlapx = 1
+        self.overlapy = 1
 
         self.direction = pygame.math.Vector2()
 
@@ -19,6 +22,10 @@ class Player(pygame.sprite.Sprite):
         self.moving_left = False
         self.moving_down = False
         self.moving_up = False
+
+        self.health = 100
+        self.strength = 20
+
 
     def move(self):
         self.direction.x, self.direction.y = 0, 0
