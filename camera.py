@@ -36,3 +36,8 @@ class Camera(pygame.sprite.Group):
         if self.settings.screen_change:
             self.settings.tile_size = next_tile_size
         self.settings.screen_change = False
+
+    def draw_UI(self, elements):
+
+        for sprite in elements:
+            sprite.setElement(self.display_surface, self.settings.screen_width, self.settings.screen_height);

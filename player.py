@@ -6,15 +6,15 @@ from settings import Settings
 
 class Player(pygame.sprite.Sprite):
 
-    def __init__(self, position, groups, obstacle_sprites):
+    def __init__(self, settings, position, groups, obstacle_sprites):
         super().__init__(groups)
         self.sheet = Spritesheet('resources/map1/assets/player.png')
         self.image = self.sheet.get_sprite(10,18,32,32);
         self.rect = self.image.get_rect(topleft=position)
         self.obstacle_sprites = obstacle_sprites
-        self.settings = Settings()
-        self.overlapx = 1
-        self.overlapy = 1
+        self.settings = settings
+        self.overlapx = 0
+        self.overlapy = 0
 
         self.direction = pygame.math.Vector2()
 
