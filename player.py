@@ -1,6 +1,7 @@
 import pygame
 
-from Spritesheet import Spritesheet
+from spritesheet import Spritesheet
+from equipment import Equipment
 
 
 class Player(pygame.sprite.Sprite):
@@ -12,8 +13,8 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(topleft=position)
         self.obstacle_sprites = obstacle_sprites
         self.settings = settings
-        self.overlapx = 0
-        self.overlapy = 0
+        self.overlapx = settings.tile_size // 4
+        self.overlapy = settings.tile_size // 4
 
         self.direction = pygame.math.Vector2()
 
@@ -29,6 +30,7 @@ class Player(pygame.sprite.Sprite):
         self.next_level_requirement = 100
         self.current_level = 1
         self.gold = 0
+        self.equipment = Equipment()
 
 
     def move(self):
@@ -133,4 +135,6 @@ class Player(pygame.sprite.Sprite):
             self.add_experience(10)
         if key == pygame.K_5:
             self.change_gold(10)
+        if key == pygame.K_6:
+            self.equipment.change_sword()
 

@@ -1,7 +1,6 @@
 import pygame
 
-from Spritesheet import Spritesheet
-
+from spritesheet import Spritesheet
 
 class Enemy(pygame.sprite.Sprite):
 

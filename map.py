@@ -1,8 +1,7 @@
 import pygame
 
-from Enemy import Enemy
-from Equipment import Equipment
-from Sword import Sword
+from enemy import Enemy
+from equipment import Equipment
 from tile import Tile
 from player import Player
 from camera import Camera
@@ -29,8 +28,11 @@ class Map:
         self.enemy3 = Enemy(settings, (self.settings.player_init_pos[0] * self.settings.tile_size+450,
                                        self.settings.player_init_pos[1] * self.settings.tile_size+500),
                             [self.visible_sprites, self.obstacle_sprites], self.obstacle_sprites, "resources/map1/assets/zombie.png")
-        self.equipment = Equipment(settings, (self.settings.screen_width-128, self.settings.screen_height//2 - 128), [], "resources/map1/assets/equip.png")
-        self.equipment.add_sword1(Sword("resources/map1/assets/wooden_sword.png"))
+        self.player.equipment.add_new_sword("resources/map1/assets/weapons/stone_sword.png", 20)
+        self.player.equipment.add_new_sword("resources/map1/assets/weapons/golden_sword.png", 40)
+        self.player.equipment.add_new_sword("resources/map1/assets/weapons/iron_sword.png", 50)
+        self.player.equipment.add_new_sword("resources/map1/assets/weapons/diamond_sword.png", 100)
+        self.player.equipment.add_new_sword("resources/map1/assets/weapons/netherite_sword.png", 120)
 
     def place_layer(self, layer_path):
         with open(layer_path, newline='\n') as csvfile:
@@ -62,7 +64,7 @@ class Map:
     def draw(self):
         self.player.update()
         self.visible_sprites.draw(self.player)
-        self.visible_sprites.draw_UI([self.equipment])
+        self.player.equipment.display_current_equipment()
         self.draw_bars()
 
 
@@ -90,7 +92,7 @@ class Map:
         self.display_surface.blit(level, (15, 60))
 
         # strength
-        strength = self.font.render(f"Strength: {self.player.strength}", True, (0, 0, 0))
+        strength = self.font.render(f"Strength: {self.player.strength + self.player.equipment.get_sword_power()}", True, (0, 0, 0))
         self.display_surface.blit(strength, (15, 75))
 
 
