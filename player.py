@@ -1,7 +1,6 @@
 import pygame
 
 from Spritesheet import Spritesheet
-from settings import Settings
 
 
 class Player(pygame.sprite.Sprite):
@@ -23,8 +22,13 @@ class Player(pygame.sprite.Sprite):
         self.moving_down = False
         self.moving_up = False
 
-        self.health = 100
+        self.max_health_points = 100
+        self.current_health_points = 100
         self.strength = 20
+        self.experience = 0
+        self.next_level_requirement = 100
+        self.current_level = 1
+        self.gold = 0
 
 
     def move(self):
@@ -87,3 +91,46 @@ class Player(pygame.sprite.Sprite):
     def update(self):
         self.handle_keys()
         self.move()
+
+
+
+    def change_health(self, value):
+        self.current_health_points = min(self.current_health_points + value, self.max_health_points)
+        if self.current_health_points <= 0:
+            my_event = pygame.event.Event(pygame.USEREVENT, message="Game over")
+            pygame.event.post(my_event)
+        print(f"Current health: {self.current_health_points}")
+
+    def change_strength(self, value):
+        self.strength += value
+        print(f"Current strength: {self.strength}")
+
+    def add_experience(self, value):
+        self.experience += value
+        while self.experience >= self.next_level_requirement:
+            self.current_level += 1
+            self.next_level_requirement *= 2
+        print(f"Current level: {self.current_level}\nTotal experience: {self.experience}")
+
+    def change_gold(self, value):
+        self.gold += value
+        print(f"Total gold: {self.gold}")
+
+    def debug(self, key):
+        # Testing
+        # 1 - add 10 health
+        # 2 - remove 10 health
+        # 3 - add 10 strength
+        # 4 - add 10 experience
+        # 5 - add 10 gold
+        if key == pygame.K_1:
+            self.change_health(10)
+        if key == pygame.K_2:
+            self.change_health(-10)
+        if key == pygame.K_3:
+            self.change_strength(10)
+        if key == pygame.K_4:
+            self.add_experience(10)
+        if key == pygame.K_5:
+            self.change_gold(10)
+

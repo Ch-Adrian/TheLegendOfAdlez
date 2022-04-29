@@ -3,11 +3,11 @@ import pygame
 from Enemy import Enemy
 from Equipment import Equipment
 from Sword import Sword
-from settings import Settings
 from tile import Tile
 from player import Player
 from camera import Camera
 import csv
+
 
 class Map:
     def __init__(self, settings):
@@ -16,6 +16,7 @@ class Map:
         self.visible_sprites = Camera(settings)
         self.obstacle_sprites = pygame.sprite.Group()
         self.place_layer("resources/map1/layers/second_map.csv")
+        self.font = pygame.font.SysFont("Arial", 14)
         self.player = Player(settings, (self.settings.player_init_pos[0] * self.settings.tile_size,
                               self.settings.player_init_pos[1] * self.settings.tile_size),
                               [self.visible_sprites], self.obstacle_sprites)
@@ -36,7 +37,6 @@ class Map:
             reader = csv.reader(csvfile, delimiter=',')
             for id_row, row in enumerate(reader):
                 for id_col, col in enumerate(row):
-                    # print(id_row, id_col)
                     if col == '0':
                         pass
                     elif col == '1':
@@ -63,6 +63,34 @@ class Map:
         self.player.update()
         self.visible_sprites.draw(self.player)
         self.visible_sprites.draw_UI([self.equipment])
+        self.draw_bars()
 
+
+    def draw_bars(self):
+        self.display_surface = pygame.display.get_surface()
+
+        # health bar
+        pygame.draw.rect(self.display_surface, (255, 0, 0), (15, 15, 150, 10))
+        pygame.draw.rect(self.display_surface, (0, 255, 0),
+                         (15, 15, self.player.current_health_points * 150 / self.player.max_health_points, 10))
+
+        # experience bar
+        pygame.draw.rect(self.display_surface, (128, 128, 128), (15, 30, 150, 10))
+        previous_level_requirement = self.player.next_level_requirement // 2
+        if self.player.current_level == 1:
+            previous_level_requirement = 0
+        pygame.draw.rect(self.display_surface, (255, 255, 0), (15, 30, 150 * (self.player.experience - previous_level_requirement) / (self.player.next_level_requirement - previous_level_requirement), 10))
+
+        # gold
+        gold = self.font.render(f"Gold: {self.player.gold}", True, (0, 0, 0))
+        self.display_surface.blit(gold, (15, 45))
+
+        # level
+        level = self.font.render(f"Level: {self.player.current_level}", True, (0, 0, 0))
+        self.display_surface.blit(level, (15, 60))
+
+        # strength
+        strength = self.font.render(f"Strength: {self.player.strength}", True, (0, 0, 0))
+        self.display_surface.blit(strength, (15, 75))
 
 

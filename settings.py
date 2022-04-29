@@ -1,3 +1,5 @@
+import pygame.font
+
 
 class Settings:
 
