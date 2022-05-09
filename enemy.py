@@ -94,11 +94,11 @@ class Enemy(pygame.sprite.Sprite):
         if left:
             self.moving_left = True
             self.is_moving = True
-            self.animation.change_animation_state(5)
+            self.animation.change_animation_state(1)
         if right:
             self.moving_right = True
             self.is_moving = True
-            self.animation.change_animation_state(1)
+            self.animation.change_animation_state(5)
 
     def attack_state(self, right, left):
         self.is_attacking = False
