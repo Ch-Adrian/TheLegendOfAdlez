@@ -29,7 +29,7 @@ class Map:
                                        self.settings.player_init_pos[1] * self.settings.tile_size+500),
                             [self.visible_sprites, self.obstacle_sprites], self.obstacle_sprites, "resources/map1/assets/zombie.png" , [(0,4), (1,8), (2,6), (3,6)],"resources/map1/animation/character1")
 
-        self.animation_sprites = [ self.player, self.enemy2, self.enemy3]
+        self.animation_enemy_sprites = [self.enemy2, self.enemy3]
 
         self.player.equipment.add_new_sword("resources/map1/assets/weapons/stone_sword.png", 20)
         self.player.equipment.add_new_sword("resources/map1/assets/weapons/golden_sword.png", 40)
@@ -99,4 +99,4 @@ class Map:
         self.display_surface.blit(strength, (15, 75))
 
     def getAnimationSprites(self):
-        return self.animation_sprites
+        return self.animation_enemy_sprites

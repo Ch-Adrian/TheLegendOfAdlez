@@ -1,3 +1,5 @@
+import math
+
 import pygame
 import sys
 from settings import Settings
@@ -20,6 +22,7 @@ class TheLegendOfAdlez:
         self.start = False
         self.difficulty = 'easy'
         self.animation_sprites = self.map.getAnimationSprites()
+        self.player = self.map.player
 
     def run_game(self):
         while self.running:
@@ -28,8 +31,14 @@ class TheLegendOfAdlez:
             self.clock.tick(self.settings.frames_per_second)
 
     def check_events(self):
+
+        self.attack_system()
+
         for ani in self.animation_sprites:
             ani.animation.nextAnimation()
+            ani.move()
+
+        self.player.animation.nextAnimation()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 sys.exit()
@@ -46,6 +55,42 @@ class TheLegendOfAdlez:
             if event.type == pygame.USEREVENT:
                 self.running = False
                 self.game_over()
+
+    def distance(self, a, b):
+        return math.sqrt( (b[0]-a[0])**2 + (b[1]-a[1])**2 )
+
+    def attack_system(self):
+        for char in self.animation_sprites:
+            c_x, c_y = char.get_position()
+            p_x, p_y = self.player.get_position()
+            d = self.distance((c_x, c_y), (p_x, p_y))
+            # print(d)
+            if 30 < d < 200:
+                top = False
+                bottom = False
+                right = False
+                left = False
+                if p_x < c_x:
+                    right = True
+                else:
+                    left = True
+                if p_y < c_y:
+                    bottom = True
+                else:
+                    top = True
+                char.moving_state(top, bottom, right, left)
+            elif d < 30:
+                right = False
+                left = False
+                if p_x < c_x:
+                    left = True
+                else:
+                    right = True
+                char.attack_state(right, left)
+                char.moving_state(False, False, False, False)
+            else:
+                char.attack_state(False, False)
+                char.moving_state(False, False, False, False)
 
     def update_screen(self):
         self.screen.fill(self.settings.bg_color)

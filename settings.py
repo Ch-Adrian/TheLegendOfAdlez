@@ -12,4 +12,5 @@ class Settings:
         self.screen_change = False
 
         self.player_speed = 5
+        self.enemy_speed = 2
         self.player_init_pos = (10, 10)

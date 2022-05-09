@@ -21,6 +21,10 @@ class Player(pygame.sprite.Sprite):
 
         self.direction = pygame.math.Vector2()
 
+        self.is_moving = False
+        self.is_attacking = False
+        self.is_idle = False
+
         self.moving_right = False
         self.moving_left = False
         self.moving_down = False
@@ -83,15 +87,28 @@ class Player(pygame.sprite.Sprite):
         self.moving_down = False
         self.moving_right = False
         self.moving_left = False
-
+        if not self.is_moving:
+            if self.animation.animation_state >=4:
+                self.animation.change_animation_state(4)
+            else:
+                self.animation.change_animation_state(0)
+        self.is_moving = False
         if event[pygame.K_UP] or event[pygame.K_w]:
             self.moving_up = True
+            self.is_moving = True
+            self.animation.change_animation_state(1)
         if event[pygame.K_DOWN] or event[pygame.K_s]:
             self.moving_down = True
+            self.is_moving = True
+            self.animation.change_animation_state(5)
         if event[pygame.K_LEFT] or event[pygame.K_a]:
             self.moving_left = True
+            self.is_moving = True
+            self.animation.change_animation_state(5)
         if event[pygame.K_RIGHT] or event[pygame.K_d]:
             self.moving_right = True
+            self.is_moving = True
+            self.animation.change_animation_state(1)
 
     def update(self):
         self.handle_keys()
@@ -141,3 +158,5 @@ class Player(pygame.sprite.Sprite):
         if key == pygame.K_6:
             self.equipment.change_sword()
 
+    def get_position(self):
+        return self.rect.topleft
