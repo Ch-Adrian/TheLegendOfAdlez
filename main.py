@@ -19,6 +19,7 @@ class TheLegendOfAdlez:
         self.running = False
         self.start = False
         self.difficulty = 'easy'
+        self.animation_sprites = self.map.getAnimationSprites()
 
     def run_game(self):
         while self.running:
@@ -27,6 +28,8 @@ class TheLegendOfAdlez:
             self.clock.tick(self.settings.frames_per_second)
 
     def check_events(self):
+        for ani in self.animation_sprites:
+            ani.animation.nextAnimation()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 sys.exit()

@@ -18,16 +18,19 @@ class Map:
         self.font = pygame.font.SysFont("Arial", 14)
         self.player = Player(settings, (self.settings.player_init_pos[0] * self.settings.tile_size,
                               self.settings.player_init_pos[1] * self.settings.tile_size),
-                              [self.visible_sprites], self.obstacle_sprites)
+                              [self.visible_sprites], self.obstacle_sprites, [(0,6), (1,6), (2,4), (3,3)],"resources/map1/animation/character0")
         self.enemy1 = Enemy(settings, (self.settings.player_init_pos[0] * self.settings.tile_size-100,
                                         self.settings.player_init_pos[1] * self.settings.tile_size+1100),
-                             [self.visible_sprites, self.obstacle_sprites], self.obstacle_sprites, "resources/map1/assets/spider.png")
+                             [self.visible_sprites, self.obstacle_sprites], self.obstacle_sprites, "resources/map1/assets/spider.png", [(0,8), (1,8), (2,6), (3,6)],"resources/map1/animation/character2")
         self.enemy2 = Enemy(settings, (self.settings.player_init_pos[0] * self.settings.tile_size+1100,
                                        self.settings.player_init_pos[1] * self.settings.tile_size+50),
-                            [self.visible_sprites, self.obstacle_sprites], self.obstacle_sprites, "resources/map1/assets/snake.png")
+                            [self.visible_sprites, self.obstacle_sprites], self.obstacle_sprites, "resources/map1/assets/snake.png", [(0,8), (1,8), (2,6), (3,6)],"resources/map1/animation/character2")
         self.enemy3 = Enemy(settings, (self.settings.player_init_pos[0] * self.settings.tile_size+450,
                                        self.settings.player_init_pos[1] * self.settings.tile_size+500),
-                            [self.visible_sprites, self.obstacle_sprites], self.obstacle_sprites, "resources/map1/assets/zombie.png")
+                            [self.visible_sprites, self.obstacle_sprites], self.obstacle_sprites, "resources/map1/assets/zombie.png" , [(0,4), (1,8), (2,6), (3,6)],"resources/map1/animation/character1")
+
+        self.animation_sprites = [ self.player, self.enemy2, self.enemy3]
+
         self.player.equipment.add_new_sword("resources/map1/assets/weapons/stone_sword.png", 20)
         self.player.equipment.add_new_sword("resources/map1/assets/weapons/golden_sword.png", 40)
         self.player.equipment.add_new_sword("resources/map1/assets/weapons/iron_sword.png", 50)
@@ -95,4 +98,5 @@ class Map:
         strength = self.font.render(f"Strength: {self.player.strength + self.player.equipment.get_sword_power()}", True, (0, 0, 0))
         self.display_surface.blit(strength, (15, 75))
 
-
+    def getAnimationSprites(self):
+        return self.animation_sprites

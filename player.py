@@ -1,20 +1,23 @@
 import pygame
 
+from AnimateMe import AnimateMe
 from spritesheet import Spritesheet
 from equipment import Equipment
 
 
 class Player(pygame.sprite.Sprite):
 
-    def __init__(self, settings, position, groups, obstacle_sprites):
+    def __init__(self, settings, position, groups, obstacle_sprites, animation_params, path_to_animation):
         super().__init__(groups)
         self.sheet = Spritesheet('resources/map1/assets/player.png')
-        self.image = self.sheet.get_sprite(10,18,32,32);
+        self.image = self.sheet.get_sprite(10,18,32,32)
+        self.animation = AnimateMe(self, animation_params, path_to_animation)
         self.rect = self.image.get_rect(topleft=position)
         self.obstacle_sprites = obstacle_sprites
         self.settings = settings
         self.overlapx = settings.tile_size // 4
         self.overlapy = settings.tile_size // 4
+
 
         self.direction = pygame.math.Vector2()
 
