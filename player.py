@@ -24,6 +24,7 @@ class Player(pygame.sprite.Sprite):
         self.is_moving = False
         self.is_attacking = False
         self.is_idle = False
+        self.is_dead = False
 
         self.moving_right = False
         self.moving_left = False
@@ -87,7 +88,7 @@ class Player(pygame.sprite.Sprite):
         self.moving_down = False
         self.moving_right = False
         self.moving_left = False
-        if not self.is_moving:
+        if not self.is_moving and not self.is_dead and not self.is_attacking:
             if self.animation.animation_state >=4:
                 self.animation.change_animation_state(4)
             else:
@@ -109,18 +110,26 @@ class Player(pygame.sprite.Sprite):
             self.moving_right = True
             self.is_moving = True
             self.animation.change_animation_state(1)
+        if event[pygame.K_b]:
+            self.is_moving = False
+            self.is_attacking = True
+            if self.animation.animation_state >= 4:
+                self.animation.change_animation_state(6)
+            else:
+                self.animation.change_animation_state(2)
 
     def update(self):
         self.handle_keys()
         self.move()
 
 
-
     def change_health(self, value):
-        self.current_health_points = min(self.current_health_points + value, self.max_health_points)
+        self.current_health_points = max(self.current_health_points + value, 0)
         if self.current_health_points <= 0:
-            my_event = pygame.event.Event(pygame.USEREVENT, message="Game over")
-            pygame.event.post(my_event)
+            self.animation.change_animation_state(3)
+            self.is_dead = True
+            # my_event = pygame.event.Event(pygame.USEREVENT, message="Game over")
+            # pygame.event.post(my_event)
         print(f"Current health: {self.current_health_points}")
 
     def change_strength(self, value):

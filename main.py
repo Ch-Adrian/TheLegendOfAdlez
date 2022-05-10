@@ -32,6 +32,8 @@ class TheLegendOfAdlez:
 
     def check_events(self):
 
+        self.player_death()
+
         self.attack_system()
 
         for ani in self.animation_sprites:
@@ -56,30 +58,51 @@ class TheLegendOfAdlez:
                 self.running = False
                 self.game_over()
 
+    def player_death(self):
+        print(self.player.animation.animation_progress, self.player.animation.animation_state)
+        if self.player.current_health_points <= 0 and self.player.animation.animation_progress == 2 and self.player.animation.animation_state == 3:
+            my_event = pygame.event.Event(pygame.USEREVENT, message="Game over")
+            pygame.event.post(my_event)
+
     def distance(self, a, b):
         return math.sqrt( (b[0]-a[0])**2 + (b[1]-a[1])**2 )
 
     def attack_system(self):
+
         for char in self.animation_sprites:
             c_x, c_y = char.get_position()
             p_x, p_y = self.player.get_position()
             d = self.distance((c_x, c_y), (p_x, p_y))
             # print(d)
-            if 30 < d < 200:
+            if 30 < d <= 200:
+                print(d)
                 top = False
                 bottom = False
                 right = False
                 left = False
-                if p_x < c_x:
+                if p_x+10 < c_x:
+                    left = True
+                elif p_x-10 > c_x:
                     right = True
                 else:
-                    left = True
-                if p_y < c_y:
+                    top = char.moving_up
+                    bottom = char.moving_down
+                if p_y+10 < c_y:
+                    top = True
+                elif p_y-10 > c_y:
                     bottom = True
                 else:
-                    top = True
+                    left = char.moving_left
+                    right = char.moving_right
+
                 char.moving_state(top, bottom, right, left)
-            elif d < 30:
+            elif d <= 30:
+                # if self.player.is_attacking:
+                #     if self.player.animation.animation_state == 2 and self.player.animation.animation_progress == 3:
+                #         if abs(p_y - c_y) < 20:
+                #             char.change_health(-self.player.strength)
+                #             self.player.animation.change_animation_state(0)
+
                 right = False
                 left = False
                 if p_x < c_x:
@@ -88,6 +111,9 @@ class TheLegendOfAdlez:
                     right = True
                 char.attack_state(right, left)
                 char.moving_state(False, False, False, False)
+                if char.animation.animation_progress == 5:
+                    self.player.change_health(-char.attack_damage)
+                    char.attack_state(False, False)
             else:
                 char.attack_state(False, False)
                 char.moving_state(False, False, False, False)

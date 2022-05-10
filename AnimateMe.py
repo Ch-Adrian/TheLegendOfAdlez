@@ -5,7 +5,7 @@ class AnimateMe:
 
     def __init__(self, character, animation_params, path):
         self.character = character
-        self.animation_state = 0 # 0 - idle, 1 - go right, 2 - attack, 3 - death, 4 - go left
+        self.animation_state = 0 # 0 - idle, 1 - go right, 2 - attack, 3 - death, 5 - go left
         self.animation_params = animation_params
 
         self.animation_list_sprites = []
@@ -26,9 +26,11 @@ class AnimateMe:
         row = self.animation_params[self.animation_state%4][0]
 
         if self.animation_state >= 4:
-            self.character.image = pygame.transform.flip(self.animation_list_sprites[row][self.animation_progress], True, False)
+            # print("right")
+            self.character.image = pygame.transform.flip(self.animation_list_sprites[row%3][self.animation_progress%long], True, False)
         else:
-            self.character.image = self.animation_list_sprites[row][self.animation_progress]
+            # print("left")
+            self.character.image = self.animation_list_sprites[row%3][self.animation_progress%long]
 
         if self.delay == 15:
             self.animation_progress = (self.animation_progress+1)%long
