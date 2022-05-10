@@ -37,6 +37,8 @@ class TheLegendOfAdlez:
         self.attack_system()
 
         for ani in self.animation_sprites:
+            if ani.is_dead and ani.animation.animation_state == 3 and ani.animation.animation_progress == 5:
+                continue
             ani.animation.nextAnimation()
             ani.move()
 
@@ -59,23 +61,25 @@ class TheLegendOfAdlez:
                 self.game_over()
 
     def player_death(self):
-        print(self.player.animation.animation_progress, self.player.animation.animation_state)
+        # print(self.player.animation.animation_progress, self.player.animation.animation_state)
         if self.player.current_health_points <= 0 and self.player.animation.animation_progress == 2 and self.player.animation.animation_state == 3:
             my_event = pygame.event.Event(pygame.USEREVENT, message="Game over")
             pygame.event.post(my_event)
 
     def distance(self, a, b):
-        return math.sqrt( (b[0]-a[0])**2 + (b[1]-a[1])**2 )
+        return abs(math.sqrt( (b[0]-a[0])**2 + (b[1]-a[1])**2 ))
 
     def attack_system(self):
 
         for char in self.animation_sprites:
+            if char.is_dead:
+                continue
             c_x, c_y = char.get_position()
             p_x, p_y = self.player.get_position()
             d = self.distance((c_x, c_y), (p_x, p_y))
             # print(d)
             if 30 < d <= 200:
-                print(d)
+                # print(d)
                 top = False
                 bottom = False
                 right = False
@@ -97,11 +101,15 @@ class TheLegendOfAdlez:
 
                 char.moving_state(top, bottom, right, left)
             elif d <= 30:
-                # if self.player.is_attacking:
-                #     if self.player.animation.animation_state == 2 and self.player.animation.animation_progress == 3:
-                #         if abs(p_y - c_y) < 20:
-                #             char.change_health(-self.player.strength)
-                #             self.player.animation.change_animation_state(0)
+                if self.player.is_attacking:
+                    # print("Player is attacking")
+                    # print(self.player.animation.animation_state,self.player.animation.animation_progress )
+                    if (self.player.animation.animation_state == 2 or self.player.animation.animation_state == 6) and self.player.animation.animation_progress == 2:
+                        # print("almost hit")
+                        if abs(p_y - c_y) < 40:
+                            # print("HIT!!!!")
+                            char.change_health(-self.player.strength)
+                            self.player.animation.change_animation_state(0)
 
                 right = False
                 left = False

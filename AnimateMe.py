@@ -13,6 +13,7 @@ class AnimateMe:
             animation_sprites = []
             for j in range(animation_params[i][1]):
                 _str = '/animation'+str(i)+'/'+str(j)+'.png'
+                # print(path+_str)
                 animation_sprites.append(pygame.image.load(path+_str))
             self.animation_list_sprites.append(animation_sprites)
 
@@ -26,11 +27,9 @@ class AnimateMe:
         row = self.animation_params[self.animation_state%4][0]
 
         if self.animation_state >= 4:
-            # print("right")
-            self.character.image = pygame.transform.flip(self.animation_list_sprites[row%3][self.animation_progress%long], True, False)
+            self.character.image = pygame.transform.flip(self.animation_list_sprites[row%4][self.animation_progress%long], True, False)
         else:
-            # print("left")
-            self.character.image = self.animation_list_sprites[row%3][self.animation_progress%long]
+            self.character.image = self.animation_list_sprites[row%4][self.animation_progress%long]
 
         if self.delay == 15:
             self.animation_progress = (self.animation_progress+1)%long

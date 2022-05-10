@@ -26,7 +26,7 @@ class Enemy(pygame.sprite.Sprite):
         self.is_dead = False
 
         self.attack_damage = 20
-        self.current_health_points = 100
+        self.current_health_points = 20
         self.max_health_points = 100
 
         self.direction = pygame.math.Vector2()
@@ -46,6 +46,8 @@ class Enemy(pygame.sprite.Sprite):
         # print(f"Current health: {self.current_health_points}")
 
     def move(self):
+        if self.is_dead:
+            return
         self.direction.x, self.direction.y = 0, 0
         if self.moving_right:
             self.direction.x = 1
@@ -83,6 +85,8 @@ class Enemy(pygame.sprite.Sprite):
 
 
     def moving_state(self, top, bottom, right, left):
+        if self.is_dead:
+            return
         self.moving_up = False
         self.moving_down = False
         self.moving_right = False
@@ -112,6 +116,8 @@ class Enemy(pygame.sprite.Sprite):
             self.animation.change_animation_state(1)
 
     def attack_state(self, right, left):
+        if self.is_dead:
+            return
         self.is_attacking = False
         if right:
             self.animation.change_animation_state(2)

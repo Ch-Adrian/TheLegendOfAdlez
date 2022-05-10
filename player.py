@@ -130,22 +130,22 @@ class Player(pygame.sprite.Sprite):
             self.is_dead = True
             # my_event = pygame.event.Event(pygame.USEREVENT, message="Game over")
             # pygame.event.post(my_event)
-        print(f"Current health: {self.current_health_points}")
+        # print(f"Current health: {self.current_health_points}")
 
     def change_strength(self, value):
         self.strength += value
-        print(f"Current strength: {self.strength}")
+        # print(f"Current strength: {self.strength}")
 
     def add_experience(self, value):
         self.experience += value
         while self.experience >= self.next_level_requirement:
             self.current_level += 1
             self.next_level_requirement *= 2
-        print(f"Current level: {self.current_level}\nTotal experience: {self.experience}")
+        # print(f"Current level: {self.current_level}\nTotal experience: {self.experience}")
 
     def change_gold(self, value):
         self.gold += value
-        print(f"Total gold: {self.gold}")
+        # print(f"Total gold: {self.gold}")
 
     def debug(self, key):
         # Testing
