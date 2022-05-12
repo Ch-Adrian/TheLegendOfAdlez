@@ -78,7 +78,7 @@ class TheLegendOfAdlez:
             p_x, p_y = self.player.get_position()
             d = self.distance((c_x, c_y), (p_x, p_y))
             # print(d)
-            if 30 < d <= 200:
+            if 35 < d <= 200:
                 # print(d)
                 top = False
                 bottom = False
@@ -100,7 +100,7 @@ class TheLegendOfAdlez:
                     right = char.moving_right
 
                 char.moving_state(top, bottom, right, left)
-            elif d <= 30:
+            elif d <= 35:
                 if self.player.is_attacking:
                     # print("Player is attacking")
                     # print(self.player.animation.animation_state,self.player.animation.animation_progress )

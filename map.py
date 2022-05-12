@@ -20,13 +20,13 @@ class Map:
                               [self.visible_sprites], self.obstacle_sprites, [(0,6), (1,6), (2,4), (3,3)],"resources/map1/animation/character0")
         self.enemy3 = Enemy(settings, (self.settings.player_init_pos[0] * self.settings.tile_size-100,
                                         self.settings.player_init_pos[1] * self.settings.tile_size+1100),
-                             [self.visible_sprites, self.obstacle_sprites], self.obstacle_sprites, "resources/map1/assets/spider.png", [(0,5), (1,5), (2,9), (3,9)],"resources/map1/animation/character3")
+                             [self.visible_sprites], self.obstacle_sprites, "resources/map1/assets/spider.png", [(0,5), (1,5), (2,9), (3,9)],"resources/map1/animation/character3")
         self.enemy2 = Enemy(settings, (self.settings.player_init_pos[0] * self.settings.tile_size+1100,
                                        self.settings.player_init_pos[1] * self.settings.tile_size+50),
-                            [self.visible_sprites, self.obstacle_sprites], self.obstacle_sprites, "resources/map1/assets/snake.png", [(0,8), (1,8), (2,6), (3,6)],"resources/map1/animation/character2")
+                            [self.visible_sprites], self.obstacle_sprites, "resources/map1/assets/snake.png", [(0,8), (1,8), (2,6), (3,6)],"resources/map1/animation/character2")
         self.enemy1 = Enemy(settings, (self.settings.player_init_pos[0] * self.settings.tile_size+450,
                                        self.settings.player_init_pos[1] * self.settings.tile_size+500),
-                            [self.visible_sprites, self.obstacle_sprites], self.obstacle_sprites, "resources/map1/assets/zombie.png" , [(0,4), (1,8), (2,6), (3,6)],"resources/map1/animation/character1")
+                            [self.visible_sprites], self.obstacle_sprites, "resources/map1/assets/zombie.png" , [(0,4), (1,8), (2,6), (3,6)],"resources/map1/animation/character1")
 
         self.animation_enemy_sprites = [self.enemy1, self.enemy2, self.enemy3]
 
