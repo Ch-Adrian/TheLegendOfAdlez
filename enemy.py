@@ -18,15 +18,13 @@ class Enemy(pygame.sprite.Sprite):
         self.overlapx = settings.tile_size // 4
         self.overlapy = settings.tile_size // 4
 
-
-
         self.is_moving = False
         self.is_attacking = False
         self.is_idle = False
         self.is_dead = False
 
         self.attack_damage = 20
-        self.current_health_points = 20
+        self.current_health_points = 40
         self.max_health_points = 100
 
         self.direction = pygame.math.Vector2()

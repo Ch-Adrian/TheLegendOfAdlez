@@ -11,8 +11,8 @@ class TheLegendOfAdlez:
     def __init__(self):
         pygame.init()
         self.settings = Settings()
-        self.screen = pygame.display.set_mode((self.settings.screen_width, self.settings.screen_height),
-                                              pygame.RESIZABLE)
+        self.screen = pygame.display.set_mode((self.settings.screen_width, self.settings.screen_height))
+                                              # pygame.RESIZABLE)
         pygame.display.set_caption("The Legend Of Adlez")
 
         self.clock = pygame.time.Clock()
@@ -46,12 +46,12 @@ class TheLegendOfAdlez:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 sys.exit()
-            if event.type == pygame.VIDEORESIZE:
-                if event.w > 600 and event.h > 600:
-                    self.settings.screen_change = True
-                    self.settings.screen_width = event.w
-                    self.settings.screen_height = event.h
-                    self.screen = pygame.display.set_mode((event.w, event.h), pygame.RESIZABLE)
+            # if event.type == pygame.VIDEORESIZE:
+            #     if event.w > 600 and event.h > 600:
+            #         self.settings.screen_change = True
+            #         self.settings.screen_width = event.w
+            #         self.settings.screen_height = event.h
+            #         self.screen = pygame.display.set_mode((event.w, event.h), pygame.RESIZABLE)
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     self.running = False
