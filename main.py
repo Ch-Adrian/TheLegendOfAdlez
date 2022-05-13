@@ -20,7 +20,6 @@ class TheLegendOfAdlez:
         self.font = pygame.font.SysFont("Arial", 24)
         self.running = False
         self.start = False
-        self.difficulty = 'easy'
         self.animation_sprites = self.map.getAnimationSprites()
         self.player = self.map.player
 
@@ -77,8 +76,11 @@ class TheLegendOfAdlez:
             c_x, c_y = char.get_position()
             p_x, p_y = self.player.get_position()
             d = self.distance((c_x, c_y), (p_x, p_y))
-            # print(d)
-            if 35 < d <= 200:
+            if d > 200:
+                self.patrol(char)
+
+            elif 35 < d <= 200:
+                char.action = 1
                 # print(d)
                 top = False
                 bottom = False
@@ -120,11 +122,40 @@ class TheLegendOfAdlez:
                 char.attack_state(right, left)
                 char.moving_state(False, False, False, False)
                 if char.animation.animation_progress == 5:
-                    self.player.change_health(-char.attack_damage)
+                    self.player.change_health(-char.attack_damage * self.settings.difficulty_values[self.settings.difficulty])
                     char.attack_state(False, False)
             else:
                 char.attack_state(False, False)
                 char.moving_state(False, False, False, False)
+
+    def patrol(self, char):
+        if char.action != 0 and abs(char.initial_x_position - char.get_position()[0]) <= self.settings.enemy_speed:
+            char.rect.x = char.initial_x_position
+        if char.action != 0 and abs(char.initial_y_position - char.get_position()[1]) <= self.settings.enemy_speed:
+            char.rect.y = char.initial_y_position
+
+        # if char.initial_x_position == 770 and char.initial_y_position == 820:
+        #   pass  # Zombie testing
+        # Actions: 0 - patrolling, 1 - attacking, 2 - returning to initial position
+        if char.action == 1:
+            char.action = 2
+        if char.action == 2 and char.initial_x_position == char.get_position()[0] and char.initial_y_position == \
+                char.get_position()[1]:
+            char.action = 0
+        elif char.action == 2:
+            top, bottom, right, left = False, False, False, False
+            if char.initial_x_position - char.get_position()[0] > 0: right = True
+            if char.initial_x_position - char.get_position()[0] < 0: left = True
+            if char.initial_y_position - char.get_position()[1] > 0: bottom = True
+            if char.initial_y_position - char.get_position()[1] < 0: top = True
+            char.moving_state(top, bottom, right, left)
+        if char.action == 0:
+            if (not char.patrol_state and char.get_position()[0] - char.initial_x_position <= -100) or (char.patrol_state and char.get_position()[0] - char.initial_x_position >= 100):
+                char.patrol_state = not char.patrol_state
+            if char.patrol_state:
+                char.moving_state(False, False, True, False)
+            else:
+                char.moving_state(False, False, False, True)
 
     def update_screen(self):
         self.screen.fill(self.settings.bg_color)
@@ -198,11 +229,11 @@ class TheLegendOfAdlez:
             hard_button = pygame.Rect(width / 2 - 100, 400, 200, 50)
             return_button = pygame.Rect(width / 2 - 100, 500, 200, 50)
 
-            if self.difficulty == 'easy':
+            if self.settings.difficulty == 'easy':
                 pygame.draw.rect(self.screen, (0, 255, 0), pygame.Rect.inflate(easy_button, 10, 10))
-            elif self.difficulty == 'medium':
+            elif self.settings.difficulty == 'medium':
                 pygame.draw.rect(self.screen, (255, 255, 0), pygame.Rect.inflate(medium_button, 10, 10))
-            elif self.difficulty == 'hard':
+            elif self.settings.difficulty == 'hard':
                 pygame.draw.rect(self.screen, (255, 0, 0), pygame.Rect.inflate(hard_button, 10, 10))
 
             pygame.draw.rect(self.screen, (0, 120, 120), easy_button)
@@ -223,11 +254,11 @@ class TheLegendOfAdlez:
             mouse_x, mouse_y = pygame.mouse.get_pos()
             if mouse_click:
                 if easy_button.collidepoint((mouse_x, mouse_y)):
-                    self.difficulty = 'easy'
+                    self.settings.difficulty = 'easy'
                 elif medium_button.collidepoint((mouse_x, mouse_y)):
-                    self.difficulty = 'medium'
+                    self.settings.difficulty = 'medium'
                 elif hard_button.collidepoint((mouse_x, mouse_y)):
-                    self.difficulty = 'hard'
+                    self.settings.difficulty = 'hard'
                 elif return_button.collidepoint((mouse_x, mouse_y)):
                     self.running = False
             mouse_click = False

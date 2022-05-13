@@ -13,19 +13,20 @@ class Map:
         self.display_surface = pygame.display.get_surface()
         self.visible_sprites = Camera(settings)
         self.obstacle_sprites = pygame.sprite.Group()
+        self.graph = []
         self.place_layer("resources/map1/layers/second_map.csv")
         self.font = pygame.font.SysFont("Arial", 14)
         self.player = Player(settings, (self.settings.player_init_pos[0] * self.settings.tile_size,
                               self.settings.player_init_pos[1] * self.settings.tile_size),
                               [self.visible_sprites], self.obstacle_sprites, [(0,6), (1,6), (2,4), (3,3)],"resources/map1/animation/character0")
         self.enemy3 = Enemy(settings, (self.settings.player_init_pos[0] * self.settings.tile_size-100,
-                                        self.settings.player_init_pos[1] * self.settings.tile_size+1100),
+                                        self.settings.player_init_pos[1] * self.settings.tile_size+1150),
                              [self.visible_sprites], self.obstacle_sprites, "resources/map1/assets/spider.png", [(0,5), (1,5), (2,9), (3,9)],"resources/map1/animation/character3")
-        self.enemy2 = Enemy(settings, (self.settings.player_init_pos[0] * self.settings.tile_size+1100,
-                                       self.settings.player_init_pos[1] * self.settings.tile_size+50),
+        self.enemy2 = Enemy(settings, (self.settings.player_init_pos[0] * self.settings.tile_size+700,
+                                       self.settings.player_init_pos[1] * self.settings.tile_size+400),
                             [self.visible_sprites], self.obstacle_sprites, "resources/map1/assets/snake.png", [(0,8), (1,8), (2,6), (3,6)],"resources/map1/animation/character2")
         self.enemy1 = Enemy(settings, (self.settings.player_init_pos[0] * self.settings.tile_size+450,
-                                       self.settings.player_init_pos[1] * self.settings.tile_size+500),
+                                       self.settings.player_init_pos[1] * self.settings.tile_size+450),
                             [self.visible_sprites], self.obstacle_sprites, "resources/map1/assets/zombie.png" , [(0,4), (1,8), (2,6), (3,6)],"resources/map1/animation/character1")
 
         self.animation_enemy_sprites = [self.enemy1, self.enemy2, self.enemy3]
@@ -40,7 +41,9 @@ class Map:
         with open(layer_path, newline='\n') as csvfile:
             reader = csv.reader(csvfile, delimiter=',')
             for id_row, row in enumerate(reader):
+                graph_row = []
                 for id_col, col in enumerate(row):
+                    graph_row.append(col)
                     if col == '0':
                         pass
                     elif col == '1':
@@ -63,6 +66,8 @@ class Map:
                         Tile((id_col * self.settings.tile_size, id_row * self.settings.tile_size),
                              "resources/map1/assets/tree_with_grass_x32.png",
                              [self.visible_sprites, self.obstacle_sprites])
+                self.graph.append(graph_row)
+
     def draw(self):
         self.player.update()
         self.visible_sprites.draw(self.player)

@@ -124,7 +124,7 @@ class Player(pygame.sprite.Sprite):
 
 
     def change_health(self, value):
-        self.current_health_points = max(self.current_health_points + value, 0)
+        self.current_health_points = min(self.max_health_points, max(self.current_health_points + value, 0))
         if self.current_health_points <= 0:
             self.animation.change_animation_state(3)
             self.is_dead = True
@@ -154,6 +154,7 @@ class Player(pygame.sprite.Sprite):
         # 3 - add 10 strength
         # 4 - add 10 experience
         # 5 - add 10 gold
+        # 6 - change sword
         if key == pygame.K_1:
             self.change_health(10)
         if key == pygame.K_2:

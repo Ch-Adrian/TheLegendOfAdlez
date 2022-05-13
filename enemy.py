@@ -6,7 +6,7 @@ from spritesheet import Spritesheet
 
 class Enemy(pygame.sprite.Sprite):
 
-    def __init__(self,settings, position, groups, obstacle_sprites, path_to_image, animation_params, path_to_animation):
+    def __init__(self, settings, position, groups, obstacle_sprites, path_to_image, animation_params, path_to_animation):
         super().__init__(groups)
         self.sheet = Spritesheet(path_to_image)
         self.image = self.sheet.get_sprite(0, 0, 32, 32);
@@ -15,6 +15,9 @@ class Enemy(pygame.sprite.Sprite):
         self.obstacle_sprites = obstacle_sprites
         self.settings = settings
 
+        self.initial_x_position = position[0]
+        self.initial_y_position = position[1]
+
         self.overlapx = settings.tile_size // 4
         self.overlapy = settings.tile_size // 4
 
@@ -22,6 +25,8 @@ class Enemy(pygame.sprite.Sprite):
         self.is_attacking = False
         self.is_idle = False
         self.is_dead = False
+        self.action = 0 # 0 - patrolling, 1 - attacking, 2 - returning to initial position
+        self.patrol_state = False
 
         self.attack_damage = 20
         self.current_health_points = 40
@@ -76,8 +81,8 @@ class Enemy(pygame.sprite.Sprite):
             if sprite.rect.colliderect(self.rect):
                 self.rect.x -= direction_x
                 self.rect.y -= direction_y
-                return False
-        return True
+                #return False
+        #return True
 
 
     def moving_state(self, top, bottom, right, left):
