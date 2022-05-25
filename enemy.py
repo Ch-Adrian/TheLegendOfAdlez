@@ -28,9 +28,9 @@ class Enemy(pygame.sprite.Sprite):
         self.action = 0 # 0 - patrolling, 1 - attacking, 2 - returning to initial position
         self.patrol_state = False
 
-        self.attack_damage = 20
+        self.attack_damage = 10 * settings.difficulty_values[settings.difficulty]
         self.current_health_points = 40
-        self.max_health_points = 100
+        self.max_health_points = 40 * settings.difficulty_values[settings.difficulty]
 
         self.direction = pygame.math.Vector2()
 
@@ -44,6 +44,9 @@ class Enemy(pygame.sprite.Sprite):
         if self.current_health_points <= 0:
             self.animation.change_animation_state(3)
             self.is_dead = True
+            # if function returns True then player experience increases
+            return True
+        return False
             # my_event = pygame.event.Event(pygame.USEREVENT, message="Game over")
             # pygame.event.post(my_event)
         # print(f"Current health: {self.current_health_points}")

@@ -6,6 +6,7 @@ from tile import Tile
 from player import Player
 from camera import Camera
 import csv
+import random
 
 class Map:
     def __init__(self, settings):
@@ -16,20 +17,45 @@ class Map:
         self.graph = []
         self.place_layer("resources/map1/layers/second_map.csv")
         self.font = pygame.font.SysFont("Arial", 14)
+        self.amount_of_zombie = 3
+        self.amount_of_spiders = 3
+        self.amount_of_snakes = 7
+        self.amount_of_enemies = self.amount_of_snakes + self.amount_of_spiders + self.amount_of_zombie
+        self.animation_enemy_sprites = []
+
         self.player = Player(settings, (self.settings.player_init_pos[0] * self.settings.tile_size,
                               self.settings.player_init_pos[1] * self.settings.tile_size),
                               [self.visible_sprites], self.obstacle_sprites, [(0,6), (1,6), (2,4), (3,3)],"resources/map1/animation/character0")
-        self.enemy3 = Enemy(settings, (self.settings.player_init_pos[0] * self.settings.tile_size-100,
-                                        self.settings.player_init_pos[1] * self.settings.tile_size+1150),
-                             [self.visible_sprites], self.obstacle_sprites, "resources/map1/assets/spider.png", [(0,5), (1,5), (2,9), (3,9)],"resources/map1/animation/character3")
-        self.enemy2 = Enemy(settings, (self.settings.player_init_pos[0] * self.settings.tile_size+700,
-                                       self.settings.player_init_pos[1] * self.settings.tile_size+400),
-                            [self.visible_sprites], self.obstacle_sprites, "resources/map1/assets/snake.png", [(0,8), (1,8), (2,6), (3,6)],"resources/map1/animation/character2")
-        self.enemy1 = Enemy(settings, (self.settings.player_init_pos[0] * self.settings.tile_size+450,
-                                       self.settings.player_init_pos[1] * self.settings.tile_size+450),
-                            [self.visible_sprites], self.obstacle_sprites, "resources/map1/assets/zombie.png" , [(0,4), (1,8), (2,6), (3,6)],"resources/map1/animation/character1")
+        # self.enemy3 = Enemy(settings, (self.settings.player_init_pos[0] * self.settings.tile_size-100,
+        #                                 self.settings.player_init_pos[1] * self.settings.tile_size+1150),
+        #                      [self.visible_sprites], self.obstacle_sprites, "resources/map1/assets/spider.png", [(0,5), (1,5), (2,9), (3,9)],"resources/map1/animation/character3")
+        # self.enemy2 = Enemy(settings, (self.settings.player_init_pos[0] * self.settings.tile_size+700,
+        #                                self.settings.player_init_pos[1] * self.settings.tile_size+400),
+        #                     [self.visible_sprites], self.obstacle_sprites, "resources/map1/assets/snake.png", [(0,8), (1,8), (2,6), (3,6)],"resources/map1/animation/character2")
+        # self.enemy1 = Enemy(settings, (self.settings.player_init_pos[0] * self.settings.tile_size+450,
+        #                                self.settings.player_init_pos[1] * self.settings.tile_size+450),
+        #                     [self.visible_sprites], self.obstacle_sprites, "resources/map1/assets/zombie.png" , [(0,4), (1,8), (2,6), (3,6)],"resources/map1/animation/character1")
 
-        self.animation_enemy_sprites = [self.enemy1, self.enemy2, self.enemy3]
+        for i in range(self.amount_of_spiders):
+            self.animation_enemy_sprites.append(Enemy(settings,
+                                        ((25+random.randint(1,160)),
+                                         (1385+random.randint(1,140))),
+                             [self.visible_sprites], self.obstacle_sprites, "resources/map1/assets/spider.png",
+                                [(0,5), (1,5), (2,9), (3,9)],"resources/map1/animation/character3"))
+
+        for i in range(self.amount_of_snakes):
+            self.animation_enemy_sprites.append(Enemy(settings,
+                                        ((994+random.randint(1,306)),
+                                         (802+random.randint(1,180))),
+                            [self.visible_sprites], self.obstacle_sprites, "resources/map1/assets/snake.png",
+                            [(0,8), (1,8), (2,6), (3,6)],"resources/map1/animation/character2"))
+
+        for i in range(self.amount_of_zombie):
+            self.animation_enemy_sprites.append(Enemy(settings,
+                                        ((792+random.randint(30,230)),
+                                         (1080+random.randint(30,140))),
+                            [self.visible_sprites], self.obstacle_sprites, "resources/map1/assets/zombie.png",
+                            [(0,4), (1,8), (2,6), (3,6)],"resources/map1/animation/character1"))
 
         self.player.equipment.add_new_sword("resources/map1/assets/weapons/stone_sword.png", 20)
         self.player.equipment.add_new_sword("resources/map1/assets/weapons/golden_sword.png", 40)
@@ -66,6 +92,10 @@ class Map:
                         Tile((id_col * self.settings.tile_size, id_row * self.settings.tile_size),
                              "resources/map1/assets/tree_with_grass_x32.png",
                              [self.visible_sprites, self.obstacle_sprites])
+                    elif col == '6':
+                        Tile((id_col * self.settings.tile_size, id_row * self.settings.tile_size),
+                             "resources/map1/assets/cave.png",
+                             [self.visible_sprites])
                 self.graph.append(graph_row)
 
     def draw(self):

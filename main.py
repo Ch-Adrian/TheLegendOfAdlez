@@ -30,8 +30,7 @@ class TheLegendOfAdlez:
             self.clock.tick(self.settings.frames_per_second)
 
     def check_events(self):
-
-        self.player_death()
+        self.game_is_end()
 
         self.attack_system()
 
@@ -59,11 +58,24 @@ class TheLegendOfAdlez:
                 self.running = False
                 self.game_over()
 
-    def player_death(self):
+    def game_is_end(self):
         # print(self.player.animation.animation_progress, self.player.animation.animation_state)
-        if self.player.current_health_points <= 0 and self.player.animation.animation_progress == 2 and self.player.animation.animation_state == 3:
+        if self.player.current_health_points <= 0 or self.player.animation.animation_progress == 2 and self.player.animation.animation_state == 3:
             my_event = pygame.event.Event(pygame.USEREVENT, message="Game over")
             pygame.event.post(my_event)
+        if self.player.rect.x>=1216 and self.player.rect.x <= 1248 and self.player.rect.y >= 1344 and self.player.rect.y <= 1410:
+            print("cave")
+            if self.enemies_dead():
+                my_event = pygame.event.Event(pygame.USEREVENT, message="Game over")
+                pygame.event.post(my_event)
+
+    def enemies_dead(self):
+        is_alive = False;
+
+        for i in range(len(self.animation_sprites)):
+            if self.animation_sprites[i].is_dead:
+                is_alive = True
+        return is_alive
 
     def distance(self, a, b):
         return abs(math.sqrt( (b[0]-a[0])**2 + (b[1]-a[1])**2 ))
@@ -110,7 +122,8 @@ class TheLegendOfAdlez:
                         # print("almost hit")
                         if abs(p_y - c_y) < 40:
                             # print("HIT!!!!")
-                            char.change_health(-self.player.strength)
+                            if char.change_health(-self.player.strength):
+                                self.player.experience += 100/len(self.animation_sprites)
                             self.player.animation.change_animation_state(0)
 
                 right = False
