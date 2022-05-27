@@ -1,10 +1,10 @@
 import pygame
 
 from enemy import Enemy
-from equipment import Equipment
 from tile import Tile
 from player import Player
 from camera import Camera
+from shopkeeper import Shopkeeper
 import csv
 import random
 
@@ -15,6 +15,7 @@ class Map:
         self.visible_sprites = Camera(settings)
         self.obstacle_sprites = pygame.sprite.Group()
         self.graph = []
+        self.shopkeeper = None
         self.place_layer("resources/map1/layers/second_map.csv")
         self.font = pygame.font.SysFont("Arial", 14)
         self.amount_of_zombie = 3
@@ -57,12 +58,6 @@ class Map:
                             [self.visible_sprites], self.obstacle_sprites, "resources/map1/assets/zombie.png",
                             [(0,4), (1,8), (2,6), (3,6)],"resources/map1/animation/character1"))
 
-        self.player.equipment.add_new_sword("resources/map1/assets/weapons/stone_sword.png", 20)
-        self.player.equipment.add_new_sword("resources/map1/assets/weapons/golden_sword.png", 40)
-        self.player.equipment.add_new_sword("resources/map1/assets/weapons/iron_sword.png", 50)
-        self.player.equipment.add_new_sword("resources/map1/assets/weapons/diamond_sword.png", 100)
-        self.player.equipment.add_new_sword("resources/map1/assets/weapons/netherite_sword.png", 120)
-
     def place_layer(self, layer_path):
         with open(layer_path, newline='\n') as csvfile:
             reader = csv.reader(csvfile, delimiter=',')
@@ -96,6 +91,11 @@ class Map:
                         Tile((id_col * self.settings.tile_size, id_row * self.settings.tile_size),
                              "resources/map1/assets/cave.png",
                              [self.visible_sprites])
+                    elif col == '7':
+                        Tile((id_col * self.settings.tile_size, id_row * self.settings.tile_size),
+                             "resources/map1/assets/shopkeeper.png",
+                             [self.visible_sprites, self.obstacle_sprites])
+                        self.shopkeeper = Shopkeeper(id_col * self.settings.tile_size, id_row * self.settings.tile_size)
                 self.graph.append(graph_row)
 
     def draw(self):
