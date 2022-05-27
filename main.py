@@ -89,17 +89,17 @@ class TheLegendOfAdlez:
             my_event = pygame.event.Event(pygame.USEREVENT, message="Game over")
             pygame.event.post(my_event)
         if self.player.rect.x>=1216 and self.player.rect.x <= 1248 and self.player.rect.y >= 1344 and self.player.rect.y <= 1410:
-            print("cave")
+            # print("cave")
             if self.enemies_dead():
                 my_event = pygame.event.Event(pygame.USEREVENT, message="Game over")
                 pygame.event.post(my_event)
 
     def enemies_dead(self):
-        is_alive = False;
+        is_alive = True;
 
         for i in range(len(self.animation_sprites)):
-            if self.animation_sprites[i].is_dead:
-                is_alive = True
+            if self.animation_sprites[i].is_dead == False:
+                is_alive = False
         return is_alive
 
     def distance(self, a, b):
