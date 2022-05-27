@@ -31,6 +31,8 @@ class Player(pygame.sprite.Sprite):
         self.moving_down = False
         self.moving_up = False
 
+        self.movement_status = "UNLOCKED"
+
         self.max_health_points = 100
         self.current_health_points = 100
         self.strength = 20
@@ -38,27 +40,28 @@ class Player(pygame.sprite.Sprite):
         self.next_level_requirement = 100
         self.current_level = 1
         self.gold = 0
-        self.equipment = Equipment()
+        self.equipment = Equipment(6)
 
 
     def move(self):
-        self.direction.x, self.direction.y = 0, 0
-        if self.moving_right:
-            self.direction.x = 1
-        if self.moving_left:
-            self.direction.x = -1
-        if self.moving_up:
-            self.direction.y = -1
-        if self.moving_down:
-            self.direction.y = 1
+        if self.movement_status == "UNLOCKED":
+            self.direction.x, self.direction.y = 0, 0
+            if self.moving_right:
+                self.direction.x = 1
+            if self.moving_left:
+                self.direction.x = -1
+            if self.moving_up:
+                self.direction.y = -1
+            if self.moving_down:
+                self.direction.y = 1
 
-        if self.direction.magnitude() != 0:
-            self.direction = self.direction.normalize()
+            if self.direction.magnitude() != 0:
+                self.direction = self.direction.normalize()
 
-        self.rect.x += self.direction.x * self.settings.player_speed
-        self.collision('x')
-        self.rect.y += self.direction.y * self.settings.player_speed
-        self.collision('y')
+            self.rect.x += self.direction.x * self.settings.player_speed
+            self.collision('x')
+            self.rect.y += self.direction.y * self.settings.player_speed
+            self.collision('y')
 
     def collision(self, direction):
         self.rect.inflate_ip(-self.overlapx, -self.overlapy)
@@ -110,7 +113,7 @@ class Player(pygame.sprite.Sprite):
             self.moving_right = True
             self.is_moving = True
             self.animation.change_animation_state(1)
-        if event[pygame.K_b]:
+        if event[pygame.K_SPACE]:
             self.is_moving = False
             self.is_attacking = True
             if self.animation.animation_state >= 4:
@@ -170,3 +173,19 @@ class Player(pygame.sprite.Sprite):
 
     def get_position(self):
         return self.rect.topleft
+
+    def change_movement_status(self, status):
+        self.movement_status = status
+
+    def get_equipment(self):
+        return self.equipment.get_items()
+
+    def get_gold(self):
+        return self.gold
+
+    def sell_item(self, index):
+        return self.equipment.remove_at_index(index)
+
+    def get_total_power(self):
+        return self.strength + self.equipment.get_sword_power()
+

@@ -1,7 +1,9 @@
 import math
+import time
 
 import pygame
 import sys
+import random
 from settings import Settings
 from map import Map
 
@@ -9,19 +11,24 @@ from map import Map
 class TheLegendOfAdlez:
 
     def __init__(self):
+
         pygame.init()
         self.settings = Settings()
         self.screen = pygame.display.set_mode((self.settings.screen_width, self.settings.screen_height))
                                               # pygame.RESIZABLE)
         pygame.display.set_caption("The Legend Of Adlez")
-
         self.clock = pygame.time.Clock()
+        self.last_click = pygame.time.get_ticks()
         self.map = Map(self.settings)
         self.font = pygame.font.SysFont("Arial", 24)
         self.running = False
         self.start = False
         self.animation_sprites = self.map.getAnimationSprites()
         self.player = self.map.player
+        self.opened_shop_window = False
+        self.double_click = False
+
+
 
     def run_game(self):
         while self.running:
@@ -52,11 +59,29 @@ class TheLegendOfAdlez:
             #         self.screen = pygame.display.set_mode((event.w, event.h), pygame.RESIZABLE)
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
-                    self.running = False
-                self.map.player.debug(event.key)
+                    if self.opened_shop_window:
+                        self.opened_shop_window = False
+                        self.player.change_movement_status("UNLOCKED")
+                    else:
+                        self.running = False
+                elif event.key == pygame.K_b:
+                    if self.distance(self.player.get_position(), self.map.shopkeeper.get_position()) < 50:
+                        self.opened_shop_window = True
+                        self.player.change_movement_status("LOCKED")
+
+                else:
+                    self.map.player.debug(event.key)
             if event.type == pygame.USEREVENT:
                 self.running = False
                 self.game_over()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                # Double click check
+                if pygame.time.get_ticks() - self.last_click <= 500:
+                    self.double_click = True
+                else:
+                    self.double_click = False
+                self.last_click = pygame.time.get_ticks()
+
 
     def game_is_end(self):
         # print(self.player.animation.animation_progress, self.player.animation.animation_state)
@@ -122,8 +147,9 @@ class TheLegendOfAdlez:
                         # print("almost hit")
                         if abs(p_y - c_y) < 40:
                             # print("HIT!!!!")
-                            if char.change_health(-self.player.strength):
-                                self.player.experience += 100/len(self.animation_sprites)
+                            if char.change_health(-self.player.get_total_power()):
+                                self.player.experience += 100//len(self.animation_sprites)
+                                self.player.change_gold(random.randint(1, 15))
                             self.player.animation.change_animation_state(0)
 
                 right = False
@@ -173,6 +199,7 @@ class TheLegendOfAdlez:
     def update_screen(self):
         self.screen.fill(self.settings.bg_color)
         self.map.draw()
+        self.shop_management()
         pygame.display.update()
 
     def main_menu(self):
@@ -316,6 +343,70 @@ class TheLegendOfAdlez:
                         mouse_click = True
             pygame.display.update()
             self.clock.tick(self.settings.frames_per_second)
+
+    def shop_management(self):
+        if self.opened_shop_window:
+            shop_window_x = 100
+            shop_window_y = 100
+            shop_window = pygame.Rect(shop_window_x, shop_window_y, self.screen.get_width() - 200, self.screen.get_height() - 200)
+            pygame.draw.rect(self.screen, (125, 15, 55), shop_window)
+            text = self.font.render("Shop", True, (0, 0, 0))
+            self.screen.blit(text, (self.screen.get_width() / 2 - 30, shop_window_x + 10))
+            player_items = self.player.get_equipment()
+            shopkeeper_items = self.map.shopkeeper.get_equipment()
+            my_font = pygame.font.SysFont('Arial', 14)
+            gold = self.player.get_gold()
+
+            sell_rects = []
+            buy_rects = []
+
+
+            for index, item in enumerate(player_items):
+                pos_x = shop_window_x + index * 3 * self.settings.tile_size + 30
+                pos_y = shop_window_y + self.settings.tile_size * 3
+                if index == 0:
+                    text = self.font.render("Sell", True, (0, 0, 0))
+                    self.screen.blit(text, (pos_x, pos_y - 30))
+                item.render_graphics(pygame.display.get_surface(), (pos_x, pos_y))
+                text = my_font.render(f"Price: {item.get_price()}", True, (255, 215, 0))
+                self.screen.blit(text, (pos_x, pos_y + 2 * self.settings.tile_size + 5))
+                text = my_font.render(f"Power: {item.get_power()}", True, (0, 0, 0))
+                self.screen.blit(text, (pos_x, pos_y + 2 * self.settings.tile_size + 20))
+                sell_rects.append(pygame.Rect(pos_x, pos_y, self.settings.tile_size * 2, self.settings.tile_size * 2))
+
+            for index, item in enumerate(shopkeeper_items):
+                pos_x = shop_window_x + index * 3 * self.settings.tile_size + 30
+                pos_y = shop_window_y + 8 * self.settings.tile_size
+                if index == 0:
+                    text = self.font.render("Buy", True, (0, 0, 0))
+                    self.screen.blit(text, (pos_x, pos_y - 30))
+                item.render_graphics(pygame.display.get_surface(), (pos_x, pos_y))
+                text = my_font.render(f"Price: {item.get_price() * 2}", True, (255, 0, 0) if item.get_price() * 2 > gold else (0, 255, 0))
+                self.screen.blit(text, (pos_x, pos_y + 2 * self.settings.tile_size + 5))
+                text = my_font.render(f"Power: {item.get_power()}", True, (0, 0, 0))
+                self.screen.blit(text, (pos_x, pos_y + 2 * self.settings.tile_size + 20))
+                buy_rects.append(pygame.Rect(pos_x, pos_y, self.settings.tile_size * 2, self.settings.tile_size * 2))
+
+            mouse_x, mouse_y = pygame.mouse.get_pos()
+            if self.double_click:
+                for index, item in enumerate(sell_rects):
+                    if item.collidepoint((mouse_x, mouse_y)):
+                        transaction_gold = self.player.sell_item(index)
+                        self.player.change_gold(transaction_gold)
+                for index, item in enumerate(buy_rects):
+                    if item.collidepoint((mouse_x, mouse_y)):
+                        if self.player.get_gold() >= shopkeeper_items[index].get_price() * 2 and self.player.equipment.items_limit > len(self.player.equipment.items):
+                            new_item = self.map.shopkeeper.sell_item(index)
+                            self.player.equipment.attach_sword(new_item)
+                            self.player.change_gold(- 2 * new_item.get_price())
+                self.double_click = False
+
+
+
+
+
+
+
 
 
 
