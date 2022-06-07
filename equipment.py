@@ -38,7 +38,7 @@ class Equipment:
     def remove_at_index(self, index):
         value = self.items[index].get_price()
         del self.items[index]
-        self.current_sword_index = len(self.items) - 1 if len(self.items) > 1 else None
+        self.current_sword_index = len(self.items) - 1 if len(self.items) > 0 else None
         return value
 
 
