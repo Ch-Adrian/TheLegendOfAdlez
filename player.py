@@ -1,6 +1,6 @@
 import pygame
 
-from AnimateMe import AnimateMe
+from animateme import AnimateMe
 from spritesheet import Spritesheet
 from equipment import Equipment
 
@@ -10,14 +10,13 @@ class Player(pygame.sprite.Sprite):
     def __init__(self, settings, position, groups, obstacle_sprites, animation_params, path_to_animation):
         super().__init__(groups)
         self.sheet = Spritesheet('resources/map1/assets/player.png')
-        self.image = self.sheet.get_sprite(10,18,32,32)
+        self.image = self.sheet.get_sprite(10, 18, 32, 32)
         self.animation = AnimateMe(self, animation_params, path_to_animation)
         self.rect = self.image.get_rect(topleft=position)
         self.obstacle_sprites = obstacle_sprites
         self.settings = settings
         self.overlapx = settings.tile_size // 4
         self.overlapy = settings.tile_size // 4
-
 
         self.direction = pygame.math.Vector2()
 
@@ -41,7 +40,6 @@ class Player(pygame.sprite.Sprite):
         self.current_level = 1
         self.gold = 0
         self.equipment = Equipment(6)
-
 
     def move(self):
         if self.movement_status == "UNLOCKED":
@@ -92,7 +90,7 @@ class Player(pygame.sprite.Sprite):
         self.moving_right = False
         self.moving_left = False
         if not self.is_moving and not self.is_dead and not self.is_attacking:
-            if self.animation.animation_state >=4:
+            if self.animation.animation_state >= 4:
                 self.animation.change_animation_state(4)
             else:
                 self.animation.change_animation_state(0)
@@ -124,7 +122,6 @@ class Player(pygame.sprite.Sprite):
     def update(self):
         self.handle_keys()
         self.move()
-
 
     def change_health(self, value):
         self.current_health_points = min(self.max_health_points, max(self.current_health_points + value, 0))
@@ -188,4 +185,3 @@ class Player(pygame.sprite.Sprite):
 
     def get_total_power(self):
         return self.strength + self.equipment.get_sword_power()
-

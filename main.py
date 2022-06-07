@@ -1,11 +1,12 @@
 import math
-import time
-
 import pygame
 import sys
-import random
+
+from actionsystem import ActionSystem
 from settings import Settings
 from map import Map
+from mainmenu import MainMenu
+from shop import Shop
 
 
 class TheLegendOfAdlez:
@@ -15,7 +16,7 @@ class TheLegendOfAdlez:
         pygame.init()
         self.settings = Settings()
         self.screen = pygame.display.set_mode((self.settings.screen_width, self.settings.screen_height))
-                                              # pygame.RESIZABLE)
+        # pygame.RESIZABLE)
         pygame.display.set_caption("The Legend Of Adlez")
         self.clock = pygame.time.Clock()
         self.last_click = pygame.time.get_ticks()
@@ -23,12 +24,12 @@ class TheLegendOfAdlez:
         self.font = pygame.font.SysFont("Arial", 24)
         self.running = False
         self.start = False
-        self.animation_sprites = self.map.getAnimationSprites()
+        self.animation_sprites = self.map.get_animation_sprites()
         self.player = self.map.player
-        self.opened_shop_window = False
+        self.shop = Shop(self)
         self.double_click = False
 
-
+        self.action_system = ActionSystem(self)
 
     def run_game(self):
         while self.running:
@@ -37,9 +38,8 @@ class TheLegendOfAdlez:
             self.clock.tick(self.settings.frames_per_second)
 
     def check_events(self):
-        self.game_is_end()
-
-        self.attack_system()
+        self.action_system.game_is_end()
+        self.action_system.attack_system()
 
         for ani in self.animation_sprites:
             if ani.is_dead and ani.animation.animation_state == 3 and ani.animation.animation_progress == 5:
@@ -59,21 +59,21 @@ class TheLegendOfAdlez:
             #         self.screen = pygame.display.set_mode((event.w, event.h), pygame.RESIZABLE)
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
-                    if self.opened_shop_window:
-                        self.opened_shop_window = False
+                    if self.shop.opened_shop_window:
+                        self.shop.opened_shop_window = False
                         self.player.change_movement_status("UNLOCKED")
                     else:
                         self.running = False
                 elif event.key == pygame.K_b:
                     if self.distance(self.player.get_position(), self.map.shopkeeper.get_position()) < 50:
-                        self.opened_shop_window = True
+                        self.shop.opened_shop_window = True
                         self.player.change_movement_status("LOCKED")
 
                 else:
                     self.map.player.debug(event.key)
             if event.type == pygame.USEREVENT:
                 self.running = False
-                self.game_over()
+                self.action_system.game_over()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 # Double click check
                 if pygame.time.get_ticks() - self.last_click <= 500:
@@ -82,334 +82,17 @@ class TheLegendOfAdlez:
                     self.double_click = False
                 self.last_click = pygame.time.get_ticks()
 
-
-    def game_is_end(self):
-        # print(self.player.animation.animation_progress, self.player.animation.animation_state)
-        if self.player.current_health_points <= 0 or self.player.animation.animation_progress == 2 and self.player.animation.animation_state == 3:
-            my_event = pygame.event.Event(pygame.USEREVENT, message="Game over")
-            pygame.event.post(my_event)
-        if self.player.rect.x>=1216 and self.player.rect.x <= 1248 and self.player.rect.y >= 1344 and self.player.rect.y <= 1410:
-            # print("cave")
-            if self.enemies_dead():
-                my_event = pygame.event.Event(pygame.USEREVENT, message="Game over")
-                pygame.event.post(my_event)
-
-    def enemies_dead(self):
-        is_alive = True;
-
-        for i in range(len(self.animation_sprites)):
-            if self.animation_sprites[i].is_dead == False:
-                is_alive = False
-        return is_alive
-
     def distance(self, a, b):
-        return abs(math.sqrt( (b[0]-a[0])**2 + (b[1]-a[1])**2 ))
-
-    def attack_system(self):
-
-        for char in self.animation_sprites:
-            if char.is_dead:
-                continue
-            c_x, c_y = char.get_position()
-            p_x, p_y = self.player.get_position()
-            d = self.distance((c_x, c_y), (p_x, p_y))
-            if d > 200:
-                self.patrol(char)
-
-            elif 35 < d <= 200:
-                char.action = 1
-                # print(d)
-                top = False
-                bottom = False
-                right = False
-                left = False
-                if p_x+10 < c_x:
-                    left = True
-                elif p_x-10 > c_x:
-                    right = True
-                else:
-                    top = char.moving_up
-                    bottom = char.moving_down
-                if p_y+10 < c_y:
-                    top = True
-                elif p_y-10 > c_y:
-                    bottom = True
-                else:
-                    left = char.moving_left
-                    right = char.moving_right
-
-                char.moving_state(top, bottom, right, left)
-            elif d <= 35:
-                if self.player.is_attacking:
-                    # print("Player is attacking")
-                    # print(self.player.animation.animation_state,self.player.animation.animation_progress )
-                    if (self.player.animation.animation_state == 2 or self.player.animation.animation_state == 6) and self.player.animation.animation_progress == 2:
-                        # print("almost hit")
-                        if abs(p_y - c_y) < 40:
-                            # print("HIT!!!!")
-                            if char.change_health(-self.player.get_total_power()):
-                                self.player.experience += 100//len(self.animation_sprites)
-                                self.player.change_gold(random.randint(1, 15))
-                            self.player.animation.change_animation_state(0)
-
-                right = False
-                left = False
-                if p_x < c_x:
-                    left = True
-                else:
-                    right = True
-                char.attack_state(right, left)
-                char.moving_state(False, False, False, False)
-                if char.animation.animation_progress == 5:
-                    self.player.change_health(-char.attack_damage * self.settings.difficulty_values[self.settings.difficulty])
-                    char.attack_state(False, False)
-            else:
-                char.attack_state(False, False)
-                char.moving_state(False, False, False, False)
-
-    def patrol(self, char):
-        if char.action != 0 and abs(char.initial_x_position - char.get_position()[0]) <= self.settings.enemy_speed:
-            char.rect.x = char.initial_x_position
-        if char.action != 0 and abs(char.initial_y_position - char.get_position()[1]) <= self.settings.enemy_speed:
-            char.rect.y = char.initial_y_position
-
-        # if char.initial_x_position == 770 and char.initial_y_position == 820:
-        #   pass  # Zombie testing
-        # Actions: 0 - patrolling, 1 - attacking, 2 - returning to initial position
-        if char.action == 1:
-            char.action = 2
-        if char.action == 2 and char.initial_x_position == char.get_position()[0] and char.initial_y_position == \
-                char.get_position()[1]:
-            char.action = 0
-        elif char.action == 2:
-            top, bottom, right, left = False, False, False, False
-            if char.initial_x_position - char.get_position()[0] > 0: right = True
-            if char.initial_x_position - char.get_position()[0] < 0: left = True
-            if char.initial_y_position - char.get_position()[1] > 0: bottom = True
-            if char.initial_y_position - char.get_position()[1] < 0: top = True
-            char.moving_state(top, bottom, right, left)
-        if char.action == 0:
-            if (not char.patrol_state and char.get_position()[0] - char.initial_x_position <= -100) or (char.patrol_state and char.get_position()[0] - char.initial_x_position >= 100):
-                char.patrol_state = not char.patrol_state
-            if char.patrol_state:
-                char.moving_state(False, False, True, False)
-            else:
-                char.moving_state(False, False, False, True)
+        return abs(math.sqrt((b[0] - a[0]) ** 2 + (b[1] - a[1]) ** 2))
 
     def update_screen(self):
         self.screen.fill(self.settings.bg_color)
         self.map.draw()
-        self.shop_management()
+        self.shop.shop_management()
         pygame.display.update()
-
-    def main_menu(self):
-        mouse_click = False
-        while True:
-            self.screen.fill((0, 0, 0))
-            menu = self.font.render("Menu", True, (0, 120, 120))
-            width, height = self.screen.get_size()
-            self.screen.blit(menu, (width / 2 - 30, 100))
-
-            continue_button = pygame.Rect(width / 2 - 100, 200, 200, 50)
-            options_button = pygame.Rect(width / 2 - 100, 300, 200, 50)
-            exit_button = pygame.Rect(width / 2 - 100, 400, 200, 50)
-
-            pygame.draw.rect(self.screen, (0, 120, 120), continue_button)
-            pygame.draw.rect(self.screen, (0, 120, 120), options_button)
-            pygame.draw.rect(self.screen, (0, 120, 120), exit_button)
-
-            continue_text = self.font.render("Continue", True, (0, 0, 0))
-            if not self.start:
-                continue_text = self.font.render("Start", True, (0, 0, 0))
-            options_text = self.font.render("Options", True, (0, 0, 0))
-            exit_text = self.font.render("Exit", True, (0, 0, 0))
-
-            if self.start:
-                self.screen.blit(continue_text, (width / 2 - 45, 210))
-            else:
-                self.screen.blit(continue_text, (width / 2 - 25, 210))
-            self.screen.blit(options_text, (width / 2 - 40, 310))
-            self.screen.blit(exit_text, (width / 2 - 20, 410))
-
-            mouse_x, mouse_y = pygame.mouse.get_pos()
-            if mouse_click:
-                if continue_button.collidepoint((mouse_x, mouse_y)):
-                    self.running = True
-                    self.start = True
-                    self.run_game()
-                elif options_button.collidepoint((mouse_x, mouse_y)):
-                    self.running = True
-                    self.options()
-                elif exit_button.collidepoint((mouse_x, mouse_y)):
-                    pygame.quit()
-                    sys.exit()
-
-            mouse_click = False
-
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    pygame.quit()
-                    sys.exit()
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    if event.button == 1:
-                        mouse_click = True
-            pygame.display.update()
-            self.clock.tick(self.settings.frames_per_second)
-
-    def options(self):
-        mouse_click = False
-        while self.running:
-            self.screen.fill((0, 0, 0))
-            menu = self.font.render("Difficulty", True, (0, 120, 120))
-            width, height = self.screen.get_size()
-            self.screen.blit(menu, (width / 2 - 42, 100))
-
-            easy_button = pygame.Rect(width / 2 - 100, 200, 200, 50)
-            medium_button = pygame.Rect(width / 2 - 100, 300, 200, 50)
-            hard_button = pygame.Rect(width / 2 - 100, 400, 200, 50)
-            return_button = pygame.Rect(width / 2 - 100, 500, 200, 50)
-
-            if self.settings.difficulty == 'easy':
-                pygame.draw.rect(self.screen, (0, 255, 0), pygame.Rect.inflate(easy_button, 10, 10))
-            elif self.settings.difficulty == 'medium':
-                pygame.draw.rect(self.screen, (255, 255, 0), pygame.Rect.inflate(medium_button, 10, 10))
-            elif self.settings.difficulty == 'hard':
-                pygame.draw.rect(self.screen, (255, 0, 0), pygame.Rect.inflate(hard_button, 10, 10))
-
-            pygame.draw.rect(self.screen, (0, 120, 120), easy_button)
-            pygame.draw.rect(self.screen, (0, 120, 120), medium_button)
-            pygame.draw.rect(self.screen, (0, 120, 120), hard_button)
-            pygame.draw.rect(self.screen, (0, 120, 120), return_button)
-
-            easy_text = self.font.render("Easy", True, (0, 0, 0))
-            medium_text = self.font.render("Medium", True, (0, 0, 0))
-            hard_text = self.font.render("Hard", True, (0, 0, 0))
-            return_text = self.font.render("Return", True, (0, 0, 0))
-
-            self.screen.blit(easy_text, (width / 2 - 25, 210))
-            self.screen.blit(medium_text, (width / 2 - 40, 310))
-            self.screen.blit(hard_text, (width / 2 - 25, 410))
-            self.screen.blit(return_text, (width / 2 - 35, 510))
-
-            mouse_x, mouse_y = pygame.mouse.get_pos()
-            if mouse_click:
-                if easy_button.collidepoint((mouse_x, mouse_y)):
-                    self.settings.difficulty = 'easy'
-                elif medium_button.collidepoint((mouse_x, mouse_y)):
-                    self.settings.difficulty = 'medium'
-                elif hard_button.collidepoint((mouse_x, mouse_y)):
-                    self.settings.difficulty = 'hard'
-                elif return_button.collidepoint((mouse_x, mouse_y)):
-                    self.running = False
-            mouse_click = False
-
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    pygame.quit()
-                    sys.exit()
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    if event.button == 1:
-                        mouse_click = True
-            pygame.display.update()
-            self.clock.tick(self.settings.frames_per_second)
-
-    def game_over(self):
-        mouse_click = False
-        while True:
-            self.screen.fill((0, 0, 0))
-            title = self.font.render("Game over", True, (0, 120, 120))
-            score = self.font.render(f"Score: {self.map.player.experience}", True, (0, 120, 120))
-            width, height = self.screen.get_size()
-            self.screen.blit(title, (width / 2 - 60, 100))
-            self.screen.blit(score, (width / 2 - 53, 150))
-
-            exit_button = pygame.Rect(width / 2 - 50, 250, 100, 50)
-            pygame.draw.rect(self.screen, (0, 120, 120), exit_button)
-            exit_text = self.font.render("Exit", True, (0, 0, 0))
-            self.screen.blit(exit_text, (width / 2 - 20, 260))
-
-            mouse_x, mouse_y = pygame.mouse.get_pos()
-            if mouse_click:
-                if exit_button.collidepoint((mouse_x, mouse_y)):
-                    pygame.quit()
-                    sys.exit()
-
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    pygame.quit()
-                    sys.exit()
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    if event.button == 1:
-                        mouse_click = True
-            pygame.display.update()
-            self.clock.tick(self.settings.frames_per_second)
-
-    def shop_management(self):
-        if self.opened_shop_window:
-            shop_window_x = 100
-            shop_window_y = 100
-            shop_window = pygame.Rect(shop_window_x, shop_window_y, self.screen.get_width() - 200, self.screen.get_height() - 200)
-            pygame.draw.rect(self.screen, (125, 15, 55), shop_window)
-            text = self.font.render("Shop", True, (0, 0, 0))
-            self.screen.blit(text, (self.screen.get_width() / 2 - 30, shop_window_x + 10))
-            player_items = self.player.get_equipment()
-            shopkeeper_items = self.map.shopkeeper.get_equipment()
-            my_font = pygame.font.SysFont('Arial', 14)
-            gold = self.player.get_gold()
-
-            sell_rects = []
-            buy_rects = []
-
-
-            for index, item in enumerate(player_items):
-                pos_x = shop_window_x + index * 3 * self.settings.tile_size + 30
-                pos_y = shop_window_y + self.settings.tile_size * 3
-                if index == 0:
-                    text = self.font.render("Sell", True, (0, 0, 0))
-                    self.screen.blit(text, (pos_x, pos_y - 30))
-                item.render_graphics(pygame.display.get_surface(), (pos_x, pos_y))
-                text = my_font.render(f"Price: {item.get_price()}", True, (255, 215, 0))
-                self.screen.blit(text, (pos_x, pos_y + 2 * self.settings.tile_size + 5))
-                text = my_font.render(f"Power: {item.get_power()}", True, (0, 0, 0))
-                self.screen.blit(text, (pos_x, pos_y + 2 * self.settings.tile_size + 20))
-                sell_rects.append(pygame.Rect(pos_x, pos_y, self.settings.tile_size * 2, self.settings.tile_size * 2))
-
-            for index, item in enumerate(shopkeeper_items):
-                pos_x = shop_window_x + index * 3 * self.settings.tile_size + 30
-                pos_y = shop_window_y + 8 * self.settings.tile_size
-                if index == 0:
-                    text = self.font.render("Buy", True, (0, 0, 0))
-                    self.screen.blit(text, (pos_x, pos_y - 30))
-                item.render_graphics(pygame.display.get_surface(), (pos_x, pos_y))
-                text = my_font.render(f"Price: {item.get_price() * 2}", True, (255, 0, 0) if item.get_price() * 2 > gold else (0, 255, 0))
-                self.screen.blit(text, (pos_x, pos_y + 2 * self.settings.tile_size + 5))
-                text = my_font.render(f"Power: {item.get_power()}", True, (0, 0, 0))
-                self.screen.blit(text, (pos_x, pos_y + 2 * self.settings.tile_size + 20))
-                buy_rects.append(pygame.Rect(pos_x, pos_y, self.settings.tile_size * 2, self.settings.tile_size * 2))
-
-            mouse_x, mouse_y = pygame.mouse.get_pos()
-            if self.double_click:
-                for index, item in enumerate(sell_rects):
-                    if item.collidepoint((mouse_x, mouse_y)):
-                        transaction_gold = self.player.sell_item(index)
-                        self.player.change_gold(transaction_gold)
-                for index, item in enumerate(buy_rects):
-                    if item.collidepoint((mouse_x, mouse_y)):
-                        if self.player.get_gold() >= shopkeeper_items[index].get_price() * 2 and self.player.equipment.items_limit > len(self.player.equipment.items):
-                            new_item = self.map.shopkeeper.sell_item(index)
-                            self.player.equipment.attach_sword(new_item)
-                            self.player.change_gold(- 2 * new_item.get_price())
-                self.double_click = False
-
-
-
-
-
-
-
-
 
 
 if __name__ == '__main__':
     tloa = TheLegendOfAdlez()
-    tloa.main_menu()
+    mainmenu = MainMenu()
+    mainmenu.main_menu(tloa)

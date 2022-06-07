@@ -1,12 +1,17 @@
 import pygame
 
 from enemy import Enemy
+from snake import Snake
+from spider import Spider
 from tile import Tile
 from player import Player
 from camera import Camera
 from shopkeeper import Shopkeeper
 import csv
 import random
+
+from zombie import Zombie
+
 
 class Map:
     def __init__(self, settings):
@@ -27,36 +32,24 @@ class Map:
         self.player = Player(settings, (self.settings.player_init_pos[0] * self.settings.tile_size,
                               self.settings.player_init_pos[1] * self.settings.tile_size),
                               [self.visible_sprites], self.obstacle_sprites, [(0,6), (1,6), (2,4), (3,3)],"resources/map1/animation/character0")
-        # self.enemy3 = Enemy(settings, (self.settings.player_init_pos[0] * self.settings.tile_size-100,
-        #                                 self.settings.player_init_pos[1] * self.settings.tile_size+1150),
-        #                      [self.visible_sprites], self.obstacle_sprites, "resources/map1/assets/spider.png", [(0,5), (1,5), (2,9), (3,9)],"resources/map1/animation/character3")
-        # self.enemy2 = Enemy(settings, (self.settings.player_init_pos[0] * self.settings.tile_size+700,
-        #                                self.settings.player_init_pos[1] * self.settings.tile_size+400),
-        #                     [self.visible_sprites], self.obstacle_sprites, "resources/map1/assets/snake.png", [(0,8), (1,8), (2,6), (3,6)],"resources/map1/animation/character2")
-        # self.enemy1 = Enemy(settings, (self.settings.player_init_pos[0] * self.settings.tile_size+450,
-        #                                self.settings.player_init_pos[1] * self.settings.tile_size+450),
-        #                     [self.visible_sprites], self.obstacle_sprites, "resources/map1/assets/zombie.png" , [(0,4), (1,8), (2,6), (3,6)],"resources/map1/animation/character1")
 
         for i in range(self.amount_of_spiders):
-            self.animation_enemy_sprites.append(Enemy(settings,
+            self.animation_enemy_sprites.append(Spider(settings,
                                         ((25+random.randint(1,160)),
                                          (1385+random.randint(1,140))),
-                             [self.visible_sprites], self.obstacle_sprites, "resources/map1/assets/spider.png",
-                                [(0,5), (1,5), (2,9), (3,9)],"resources/map1/animation/character3"))
+                             [self.visible_sprites], self.obstacle_sprites))
 
         for i in range(self.amount_of_snakes):
-            self.animation_enemy_sprites.append(Enemy(settings,
+            self.animation_enemy_sprites.append(Snake(settings,
                                         ((994+random.randint(1,306)),
                                          (802+random.randint(1,180))),
-                            [self.visible_sprites], self.obstacle_sprites, "resources/map1/assets/snake.png",
-                            [(0,8), (1,8), (2,6), (3,6)],"resources/map1/animation/character2"))
+                            [self.visible_sprites], self.obstacle_sprites))
 
         for i in range(self.amount_of_zombie):
-            self.animation_enemy_sprites.append(Enemy(settings,
+            self.animation_enemy_sprites.append(Zombie(settings,
                                         ((792+random.randint(30,230)),
                                          (1080+random.randint(30,140))),
-                            [self.visible_sprites], self.obstacle_sprites, "resources/map1/assets/zombie.png",
-                            [(0,4), (1,8), (2,6), (3,6)],"resources/map1/animation/character1"))
+                            [self.visible_sprites], self.obstacle_sprites))
 
     def place_layer(self, layer_path):
         with open(layer_path, newline='\n') as csvfile:
@@ -132,5 +125,5 @@ class Map:
         strength = self.font.render(f"Strength: {self.player.strength + self.player.equipment.get_sword_power()}", True, (0, 0, 0))
         self.display_surface.blit(strength, (15, 75))
 
-    def getAnimationSprites(self):
+    def get_animation_sprites(self):
         return self.animation_enemy_sprites

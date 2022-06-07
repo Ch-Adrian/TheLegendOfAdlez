@@ -1,12 +1,14 @@
 import pygame
 import random
 
-from AnimateMe import AnimateMe
+from animateme import AnimateMe
 from spritesheet import Spritesheet
+
 
 class Enemy(pygame.sprite.Sprite):
 
-    def __init__(self, settings, position, groups, obstacle_sprites, path_to_image, animation_params, path_to_animation):
+    def __init__(self, settings, position, groups, obstacle_sprites, path_to_image, animation_params,
+                 path_to_animation):
         super().__init__(groups)
         self.sheet = Spritesheet(path_to_image)
         self.image = self.sheet.get_sprite(0, 0, 32, 32);
@@ -25,12 +27,8 @@ class Enemy(pygame.sprite.Sprite):
         self.is_attacking = False
         self.is_idle = False
         self.is_dead = False
-        self.action = 0 # 0 - patrolling, 1 - attacking, 2 - returning to initial position
+        self.action = 0  # 0 - patrolling, 1 - attacking, 2 - returning to initial position
         self.patrol_state = False
-
-        self.attack_damage = 10 * settings.difficulty_values[settings.difficulty]
-        self.current_health_points = 40
-        self.max_health_points = 40 * settings.difficulty_values[settings.difficulty]
 
         self.direction = pygame.math.Vector2()
 
@@ -47,8 +45,8 @@ class Enemy(pygame.sprite.Sprite):
             # if function returns True then player experience increases
             return True
         return False
-            # my_event = pygame.event.Event(pygame.USEREVENT, message="Game over")
-            # pygame.event.post(my_event)
+        # my_event = pygame.event.Event(pygame.USEREVENT, message="Game over")
+        # pygame.event.post(my_event)
         # print(f"Current health: {self.current_health_points}")
 
     def move(self):
@@ -84,9 +82,8 @@ class Enemy(pygame.sprite.Sprite):
             if sprite.rect.colliderect(self.rect):
                 self.rect.x -= direction_x
                 self.rect.y -= direction_y
-                #return False
-        #return True
-
+                # return False
+        # return True
 
     def moving_state(self, top, bottom, right, left):
         if self.is_dead:
