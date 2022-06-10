@@ -68,15 +68,26 @@ class Enemy(pygame.sprite.Sprite):
         if self.direction.magnitude() != 0:
             self.direction = self.direction.normalize()
 
-        self.collision(self.direction.x * self.settings.enemy_speed, self.direction.y * self.settings.enemy_speed)
+        self.rect.x += self.direction.x * self.settings.enemy_speed
+        self.collision('x')
+        self.rect.y += self.direction.y * self.settings.enemy_speed
+        self.collision('y')
 
-    def collision(self, direction_x, direction_y):
-        self.rect.x += direction_x
-        self.rect.y += direction_y
-        for sprite in self.obstacle_sprites:
-            if sprite.rect.colliderect(self.rect):
-                self.rect.x -= direction_x
-                self.rect.y -= direction_y
+    def collision(self, direction):
+        if direction == 'x':
+            for sprite in self.obstacle_sprites:
+                if sprite.rect.colliderect(self.rect):
+                    if self.direction.x > 0:
+                        self.rect.right = sprite.rect.left
+                    if self.direction.x < 0:
+                        self.rect.left = sprite.rect.right
+        if direction == 'y':
+            for sprite in self.obstacle_sprites:
+                if sprite.rect.colliderect(self.rect):
+                    if self.direction.y < 0:
+                        self.rect.top = sprite.rect.bottom
+                    if self.direction.y > 0:
+                        self.rect.bottom = sprite.rect.top
 
     def moving_state(self, top, bottom, right, left):
         if not self.is_dead:
