@@ -1,6 +1,7 @@
 import pygame
 from sword import Sword
 
+
 class Equipment:
 
     def __init__(self, items_limit):
@@ -16,7 +17,8 @@ class Equipment:
     def display_current_equipment(self):
         if self.current_sword_index is not None:
             width, height = pygame.display.get_surface().get_size()
-            self.items[self.current_sword_index].render_graphics(pygame.display.get_surface(), (width - 64, height - 64))
+            self.items[self.current_sword_index].draw(pygame.display.get_surface(),
+                                                      (width - 64, height - 64))
 
     def change_sword(self):
         if self.current_sword_index is not None:
@@ -32,7 +34,7 @@ class Equipment:
 
     def attach_sword(self, sword):
         if sword is not None:
-           self.items.append(sword)
+            self.items.append(sword)
         self.current_sword_index = len(self.items) - 1
 
     def remove_at_index(self, index):
@@ -40,6 +42,3 @@ class Equipment:
         del self.items[index]
         self.current_sword_index = len(self.items) - 1 if len(self.items) > 0 else None
         return value
-
-
-

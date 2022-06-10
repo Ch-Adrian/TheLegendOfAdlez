@@ -1,8 +1,7 @@
 import pygame
-import random
-
 from animateme import AnimateMe
-from spritesheet import Spritesheet
+from spritesheet import SpriteSheet
+from action import Action
 
 
 class Enemy(pygame.sprite.Sprite):
@@ -10,8 +9,9 @@ class Enemy(pygame.sprite.Sprite):
     def __init__(self, settings, position, groups, obstacle_sprites, path_to_image, animation_params,
                  path_to_animation):
         super().__init__(groups)
-        self.sheet = Spritesheet(path_to_image)
-        self.image = self.sheet.get_sprite(0, 0, 32, 32);
+
+        self.sheet = SpriteSheet(path_to_image)
+        self.image = self.sheet.get_sprite(0, 0, 32, 32)
         self.animation = AnimateMe(self, animation_params, path_to_animation)
         self.rect = self.image.get_rect(topleft=position)
         self.obstacle_sprites = obstacle_sprites
@@ -27,7 +27,8 @@ class Enemy(pygame.sprite.Sprite):
         self.is_attacking = False
         self.is_idle = False
         self.is_dead = False
-        self.action = 0  # 0 - patrolling, 1 - attacking, 2 - returning to initial position
+
+        self.action = Action.PATROL
         self.patrol_state = False
 
         self.direction = pygame.math.Vector2()
@@ -37,6 +38,10 @@ class Enemy(pygame.sprite.Sprite):
         self.moving_down = False
         self.moving_up = False
 
+        self.max_health_points = None
+        self.current_health_points = None
+        self.attack_damage = None
+
     def change_health(self, value):
         self.current_health_points = max(self.current_health_points + value, 0)
         if self.current_health_points <= 0:
@@ -45,14 +50,12 @@ class Enemy(pygame.sprite.Sprite):
             # if function returns True then player experience increases
             return True
         return False
-        # my_event = pygame.event.Event(pygame.USEREVENT, message="Game over")
-        # pygame.event.post(my_event)
-        # print(f"Current health: {self.current_health_points}")
 
     def move(self):
         if self.is_dead:
             return
         self.direction.x, self.direction.y = 0, 0
+
         if self.moving_right:
             self.direction.x = 1
         if self.moving_left:
@@ -65,56 +68,45 @@ class Enemy(pygame.sprite.Sprite):
         if self.direction.magnitude() != 0:
             self.direction = self.direction.normalize()
 
-        # if self.animation.path == "resources/map1/animation/character1":
         self.collision(self.direction.x * self.settings.enemy_speed, self.direction.y * self.settings.enemy_speed)
-        # self.rect.x += self.direction.x * self.settings.enemy_speed
-        # print("X: ",self.rect.x)
-        #     self.collision('x')
-        # self.rect.y += self.direction.y * self.settings.enemy_speed
-        # print("Y: ",self.rect.y)
-        #     self.collision('y')
 
     def collision(self, direction_x, direction_y):
         self.rect.x += direction_x
         self.rect.y += direction_y
-
         for sprite in self.obstacle_sprites:
             if sprite.rect.colliderect(self.rect):
                 self.rect.x -= direction_x
                 self.rect.y -= direction_y
-                # return False
-        # return True
 
     def moving_state(self, top, bottom, right, left):
-        if self.is_dead:
-            return
-        self.moving_up = False
-        self.moving_down = False
-        self.moving_right = False
-        self.moving_left = False
-        if not self.is_moving and not self.is_attacking and not self.is_dead:
-            if self.animation.animation_state >= 4:
-                self.animation.change_animation_state(4)
-            else:
-                self.animation.change_animation_state(0)
+        if not self.is_dead:
+            self.moving_up = False
+            self.moving_down = False
+            self.moving_right = False
+            self.moving_left = False
+            if not self.is_moving and not self.is_attacking and not self.is_dead:
+                if self.animation.animation_state >= 4:
+                    self.animation.change_animation_state(4)
+                else:
+                    self.animation.change_animation_state(0)
 
-        self.is_moving = False
-        if top:
-            self.moving_up = True
-            self.animation.change_animation_state(1)
-            self.is_moving = True
-        if bottom:
-            self.moving_down = True
-            self.is_moving = True
-            self.animation.change_animation_state(5)
-        if left:
-            self.moving_left = True
-            self.is_moving = True
-            self.animation.change_animation_state(5)
-        if right:
-            self.moving_right = True
-            self.is_moving = True
-            self.animation.change_animation_state(1)
+            self.is_moving = False
+            if top:
+                self.moving_up = True
+                self.animation.change_animation_state(1)
+                self.is_moving = True
+            if bottom:
+                self.moving_down = True
+                self.is_moving = True
+                self.animation.change_animation_state(5)
+            if left:
+                self.moving_left = True
+                self.is_moving = True
+                self.animation.change_animation_state(5)
+            if right:
+                self.moving_right = True
+                self.is_moving = True
+                self.animation.change_animation_state(1)
 
     def attack_state(self, right, left):
         if self.is_dead:

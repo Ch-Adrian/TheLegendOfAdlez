@@ -1,5 +1,6 @@
 from equipment import Equipment
 
+
 class Shopkeeper:
     def __init__(self, x, y):
         self.position = (x, y)
@@ -18,5 +19,3 @@ class Shopkeeper:
 
     def sell_item(self, index):
         return self.equipment.get_items()[index]
-
-

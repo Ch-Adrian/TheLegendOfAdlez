@@ -13,16 +13,13 @@ class AnimateMe:
             animation_sprites = []
             for j in range(animation_params[i][1]):
                 _str = '/animation' + str(i) + '/' + str(j) + '.png'
-                # print(path+_str)
                 animation_sprites.append(pygame.image.load(path + _str))
             self.animation_list_sprites.append(animation_sprites)
 
         self.animation_progress = 0
         self.delay = 0
 
-    def nextAnimation(self):
-        # print("nextAnimation", self.animation_progress)
-        # 0 - idle
+    def next_animation(self):
         long = self.animation_params[self.animation_state % 4][1]
         row = self.animation_params[self.animation_state % 4][0]
         if self.animation_state != 0 and self.animation_progress == long - 1:

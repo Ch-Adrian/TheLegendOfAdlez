@@ -1,4 +1,5 @@
-import pygame.font
+from difficulty import Difficulty
+
 
 class Settings:
 
@@ -6,12 +7,11 @@ class Settings:
         self.screen_width = 800
         self.screen_height = 600
         self.bg_color = (47, 129, 54)
-        self.frames_per_second = 60
+        self.fps_cap = 60
         self.tile_size = 32
-        self.screen_change = False
 
         self.player_speed = 5
         self.enemy_speed = 2
         self.player_init_pos = (10, 10)
-        self.difficulty = 'easy'
-        self.difficulty_values = {'easy':1, 'medium':2, 'hard':4}
+
+        self.difficulty = Difficulty.EASY

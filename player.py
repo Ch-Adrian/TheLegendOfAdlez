@@ -1,15 +1,16 @@
 import pygame
 
 from animateme import AnimateMe
-from spritesheet import Spritesheet
+from spritesheet import SpriteSheet
 from equipment import Equipment
+from action import Action
 
 
 class Player(pygame.sprite.Sprite):
 
     def __init__(self, settings, position, groups, obstacle_sprites, animation_params, path_to_animation):
         super().__init__(groups)
-        self.sheet = Spritesheet('resources/map1/assets/player.png')
+        self.sheet = SpriteSheet('resources/map1/assets/player.png')
         self.image = self.sheet.get_sprite(10, 18, 32, 32)
         self.animation = AnimateMe(self, animation_params, path_to_animation)
         self.rect = self.image.get_rect(topleft=position)
@@ -30,7 +31,7 @@ class Player(pygame.sprite.Sprite):
         self.moving_down = False
         self.moving_up = False
 
-        self.movement_status = "UNLOCKED"
+        self.movement_status = Action.UNLOCKED_MOVEMENT
 
         self.max_health_points = 100
         self.current_health_points = 100
@@ -42,7 +43,7 @@ class Player(pygame.sprite.Sprite):
         self.equipment = Equipment(6)
 
     def move(self):
-        if self.movement_status == "UNLOCKED":
+        if self.movement_status == Action.UNLOCKED_MOVEMENT:
             self.direction.x, self.direction.y = 0, 0
             if self.moving_right:
                 self.direction.x = 1
@@ -128,45 +129,21 @@ class Player(pygame.sprite.Sprite):
         if self.current_health_points <= 0:
             self.animation.change_animation_state(3)
             self.is_dead = True
-            # my_event = pygame.event.Event(pygame.USEREVENT, message="Game over")
-            # pygame.event.post(my_event)
-        # print(f"Current health: {self.current_health_points}")
 
     def change_strength(self, value):
         self.strength += value
-        # print(f"Current strength: {self.strength}")
 
     def add_experience(self, value):
         self.experience += value
         while self.experience >= self.next_level_requirement:
             self.current_level += 1
             self.next_level_requirement *= 2
-        # print(f"Current level: {self.current_level}\nTotal experience: {self.experience}")
+            self.max_health_points += 10
+            self.current_health_points += 10
+            self.strength += 5
 
     def change_gold(self, value):
         self.gold += value
-        # print(f"Total gold: {self.gold}")
-
-    def debug(self, key):
-        # Testing
-        # 1 - add 10 health
-        # 2 - remove 10 health
-        # 3 - add 10 strength
-        # 4 - add 10 experience
-        # 5 - add 10 gold
-        # 6 - change sword
-        if key == pygame.K_1:
-            self.change_health(10)
-        if key == pygame.K_2:
-            self.change_health(-10)
-        if key == pygame.K_3:
-            self.change_strength(10)
-        if key == pygame.K_4:
-            self.add_experience(10)
-        if key == pygame.K_5:
-            self.change_gold(10)
-        if key == pygame.K_6:
-            self.equipment.change_sword()
 
     def get_position(self):
         return self.rect.topleft
