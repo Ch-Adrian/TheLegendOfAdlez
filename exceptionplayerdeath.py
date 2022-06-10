@@ -1,0 +1,3 @@
+
+class PlayerDeathException(Exception):
+    pass

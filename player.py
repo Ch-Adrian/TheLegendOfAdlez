@@ -1,6 +1,7 @@
 import pygame
 
 from animateme import AnimateMe
+from exceptionplayerdeath import PlayerDeathException
 from spritesheet import SpriteSheet
 from equipment import Equipment
 from action import Action
@@ -129,6 +130,7 @@ class Player(pygame.sprite.Sprite):
         if self.current_health_points <= 0:
             self.animation.change_animation_state(3)
             self.is_dead = True
+            raise PlayerDeathException
 
     def change_strength(self, value):
         self.strength += value

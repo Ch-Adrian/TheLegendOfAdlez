@@ -1,5 +1,6 @@
 import pygame
 from animateme import AnimateMe
+from exceptionenemydeath import EnemyDeathException
 from spritesheet import SpriteSheet
 from action import Action
 
@@ -47,9 +48,7 @@ class Enemy(pygame.sprite.Sprite):
         if self.current_health_points <= 0:
             self.animation.change_animation_state(3)
             self.is_dead = True
-            # if function returns True then player experience increases
-            return True
-        return False
+            raise EnemyDeathException
 
     def move(self):
         if self.is_dead:

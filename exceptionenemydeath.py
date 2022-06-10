@@ -1,0 +1,4 @@
+
+
+class EnemyDeathException(Exception):
+    pass

@@ -1,6 +1,8 @@
 import random
 import pygame
 from action import Action
+from exceptionenemydeath import EnemyDeathException
+from exceptionplayerdeath import PlayerDeathException
 
 
 class ActionSystem:
@@ -46,10 +48,13 @@ class ActionSystem:
                             self.game.player.animation.animation_state == 6) and \
                                 self.game.player.animation.animation_progress == 2:
                             if abs(player_y - enemy_y) < 40:
-                                if enemy.change_health(-self.game.player.get_total_power()):
+                                try:
+                                    enemy.change_health(-self.game.player.get_total_power())
+                                except EnemyDeathException:
                                     self.game.player.add_experience(200 // len(self.game.animation_sprites))
                                     self.game.player.change_gold(random.randint(1, 15))
-                                self.game.player.animation.change_animation_state(0)
+                                finally:
+                                    self.game.player.animation.change_animation_state(0)
 
                     right, left = False, False
 
@@ -62,8 +67,12 @@ class ActionSystem:
                     enemy.moving_state(False, False, False, False)
 
                     if enemy.animation.animation_progress == 5:
-                        self.game.player.change_health(-enemy.attack_damage * self.game.settings.difficulty)
-                        enemy.attack_state(False, False)
+                        try:
+                            self.game.player.change_health(-enemy.attack_damage * self.game.settings.difficulty)
+                        except PlayerDeathException:
+                            self.check_if_game_over()
+                        finally:
+                            enemy.attack_state(False, False)
                 else:
                     enemy.attack_state(False, False)
                     enemy.moving_state(False, False, False, False)

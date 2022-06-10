@@ -4,6 +4,7 @@ import sys
 
 from action import Action
 from actionsystem import ActionSystem
+from exceptionplayerdeath import PlayerDeathException
 from settings import Settings
 from map import Map
 from menu import Menu
@@ -100,9 +101,15 @@ class TheLegendOfAdlez:
         # 5 - add 10 gold
         if self.debug_mode:
             if key == pygame.K_1:
-                self.player.change_health(10)
+                try:
+                    self.player.change_health(10)
+                except PlayerDeathException:
+                    self.action_system.check_if_game_over()
             if key == pygame.K_2:
-                self.player.change_health(-10)
+                try:
+                    self.player.change_health(-10)
+                except PlayerDeathException:
+                    self.action_system.check_if_game_over()
             if key == pygame.K_3:
                 self.player.change_strength(10)
             if key == pygame.K_4:
